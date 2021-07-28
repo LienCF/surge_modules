@@ -1,0 +1,7 @@
+#!name=更新ControlD IP
+#!desc=當收到網路變更的event時，向ControlD 發送 DNS 查詢以更新IP
+#!system=ios
+
+[Script]
+script1 = type=event,event-name=network-changed,script-path=https://gist.githubusercontent.com/NobyDa/e1f82ee2aa21c3958d8a7ce69ac27827/raw/WiFi-Firewall.js
+
