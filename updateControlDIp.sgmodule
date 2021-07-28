@@ -3,5 +3,5 @@
 #!system=ios
 
 [Script]
-script1 = type=event,event-name=network-changed,script-path=https://gist.githubusercontent.com/NobyDa/e1f82ee2aa21c3958d8a7ce69ac27827/raw/WiFi-Firewall.js
+script1 = type=event,event-name=network-changed,script-path=https://raw.githubusercontent.com/LienCF/surge_modules/master/updateControlDIp.js
 
