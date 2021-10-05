@@ -1,7 +1,7 @@
 var dns_object = {
-  url: "https://ultralow.dns2.nextdns.io/56b924/DNS_Update?dns=www.google.com.tw",
+  url: "https://ultralow.dns2.nextdns.io/56b924/DNS_Update?dns=q80BAAABAAAAAAAAA3d3dwdleGFtcGxlA2NvbQAAAQABw",
     headers: {
-    Content-Type: "application/dns-json"
+    "Content-Type": "application/dns-message"
     },
   body: "{}"
 }
