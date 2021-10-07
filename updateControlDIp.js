@@ -42,7 +42,7 @@ function ControlDLogin(token) {
             if (body.success == true) {
                 $.SESSION = body.body.session;
                 $.log($.SESSION);
-                $.notifyMsg.push('', `✅ControlD 登錄成功`);
+                //$.notifyMsg.push('', `✅ControlD 登錄成功`);
             } else {
                 throw new Error(`❌登錄失敗\n❌${body.error.message||'未知'}`);
             }
@@ -62,7 +62,7 @@ function ControlDGetUsers(session) {
             if (body.success == true) {
                 $.SourceIP = body.body.debug.source_ip;
                 $.log($.SourceIP);
-                $.notifyMsg.push('', `✅Source IP: ${$.SourceIP}`);
+                $.notifyMsg.push('', `✅ControlD 登錄成功: ${$.SourceIP}`);
             } else {
                 throw new Error(`❌登錄失敗\n❌${body.error.message||'未知'}`);
             }
