@@ -11,7 +11,7 @@ $.token;
    
 })().catch((e) => $.notifyMsg.push(e.message || e))
     .finally(() => {
-        $.msg(`Controld`, ``, $.notifyMsg.join('\n'));
+        //$.msg(`Controld`, ``, $.notifyMsg.join('\n'));
         $.done();
     });
 
