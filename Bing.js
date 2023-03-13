@@ -11,7 +11,7 @@ Surge 4.2.0+ 脚本配置:
 
 [Script]
 # > Bing积分
-Bing积分cookie = requires-body=0,type=http-request,pattern=https:\/\/rewards\.bing\.com,script-path=https://raw.githubusercontent.com/lowking/Scripts/master/bing/bingPoint.js
+# Bing积分cookie = requires-body=0,type=http-request,pattern=https:\/\/rewards\.bing\.com,script-path=https://raw.githubusercontent.com/lowking/Scripts/master/bing/bingPoint.js
 Bing积分 = type=cron,cronexp="0 10 0 * * ?",wake-system=1,script-path=https://raw.githubusercontent.com/lowking/Scripts/master/bing/bingPoint.js
 
 */
@@ -100,6 +100,19 @@ if(!lk.isExecComm) {
 
 function getCookie() {
     if (lk.isGetCookie(/\/rewards\.bing\.com/)) {
+        lk.log(`开始获取cookie`)
+        try {
+            const bingHeader = JSON.stringify($request.headers.cookie)
+            if (!!bingHeader) {
+                lk.setVal(bingPointCookieKey, bingHeader)
+                lk.appendNotifyInfo('🎉成功获取cookie，可以关闭相应脚本')
+            }
+        } catch (e) {
+            lk.execFail()
+            lk.appendNotifyInfo('❌获取bing cookie失败')
+        }
+    }
+    if (lk.isGetCookie(/\/www\.bing\.com/)) {
         lk.log(`开始获取cookie`)
         try {
             const bingHeader = JSON.stringify($request.headers.cookie)
@@ -326,7 +339,7 @@ function searchPc() {
         let h = JSON.parse(JSON.stringify(bingPointHeader))
         if (nowString != isSearchRepeat || searchPcCount < searchPcAmount) {
             for (let i = searchPcCount; i < searchPcAmount; i++) {
-                h["authority"] = "cn.bing.com"
+                h["authority"] = "www.bing.com"
                 h["upgrade-insecure-requests"] = "1"
                 h["accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"
                 h["sec-fetch-site"] = "none"
@@ -334,7 +347,7 @@ function searchPc() {
                 h["sec-fetch-user"] = "?1"
                 h["sec-fetch-dest"] = "document"
                 h["sec-fetch-dest"] = "document"
-                h["sec-ch-ua-full-version-list"] = "Not A(Brand;v=24.0.0.0, Chromium;v=110.0.5481.177"
+                h["sec-ch-ua-full-version-list"] = "Chromium;v=110, Not A(Brand;v=24, Microsoft Edge;v=110"
                 h["accept-encoding"] = "UTF-8"
                 h["Content-Encoding"] = "UTF-8"
                 h["cookie"] = bingSearchCookie
