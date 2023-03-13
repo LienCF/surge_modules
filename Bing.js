@@ -22,7 +22,7 @@ const bingSearchCookieKey = 'bingSearchCookieKey'
 const bingSearchCookieMobileKey = 'bingSearchCookieMobileKey'
 const bingPointCookie2Key = 'bingPointCookie2Key'
 const bingSearchCookie2Key = 'bingSearchCookie2Key'
-const bingSearchCookie2MobileKey = 'bingSearchCookieMobile2Key'
+const bingSearchCookie2MobileKey = 'bingSearchCookie2MobileKey'
 const searchRepeatKey = "bingSearchRepeatKey"
 const searchRepeatMobileKey = "searchRepeatMobileKey"
 const searchPcCountKey = "bingSearchPcCountKey"
@@ -34,6 +34,9 @@ let bingPointHeader
 let bingPointCookie = lk.getVal(bingPointCookieKey)
 let bingSearchCookie = lk.getVal(bingSearchCookieKey)
 let bingSearchMobileCookie = lk.getVal(bingSearchCookieMobileKey)
+let bingPointCookie2 = lk.getVal(bingPointCookie2Key)
+let bingSearchCookie2 = lk.getVal(bingSearchCookie2Key)
+let bingSearchMobileCookie2 = lk.getVal(bingSearchCookie2MobileKey)
 let isSearchRepeat = lk.getVal(searchRepeatKey)
 let isSearchMobileRepeat = lk.getVal(searchRepeatMobileKey)
 let searchPcCount = lk.getVal(searchPcCountKey, 0)
@@ -120,7 +123,7 @@ function getCookie() {
         try {
             const bingHeader = JSON.stringify($request.headers.cookie)
             if (!!bingHeader) {
-                lk.setVal(bingPointCookieKey, bingHeader)
+                lk.setVal(bingSearchCookieMobileKey, bingHeader)
                 lk.appendNotifyInfo('🎉成功获取cookie，可以关闭相应脚本')
             }
         } catch (e) {
@@ -146,7 +149,7 @@ async function dealMsg(dashBoard, newPoint) {
 
 async function all() {
     let msg = ``
-    if (bingPointCookie == '') {
+    if (bingPointCookie2 == '') {
         lk.execFail()
         lk.appendNotifyInfo(`⚠️请先打开rewards.bing.com获取cookie`)
     } else {
@@ -154,7 +157,7 @@ async function all() {
         bingPointHeader["authority"] = 'rewards.bing.com'
         bingPointHeader["accept"] = 'application/json, text/javascript, */*; q=0.01'
         bingPointHeader["accept-language"] = 'zh-TW,zh;q=0.9'
-        bingPointHeader["cookie"] = bingPointCookie
+        bingPointHeader["cookie"] = bingPointCookie2
         bingPointHeader["correlation-context"] = 'v=1,ms.b.tel.market=zh-TW'
         bingPointHeader["dnt"] = '1'
         bingPointHeader["referer"] = 'https://rewards.bing.com/redeem/000899036002'
@@ -169,10 +172,10 @@ async function all() {
         bingPointHeader["sec-fetch-mode"] = 'cors'
         bingPointHeader["sec-fetch-site"] = 'same-origin'
         bingPointHeader["user-agent"] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36'
-        if (bingSearchCookie != '') {
+        if (bingSearchCookie2 != '') {
             await searchPc()
         }
-        if (bingSearchMobileCookie != '') {
+        if (bingSearchMobileCookie2 != '') {
             await searchMobile()
         }
         let dashBoard = await getDashBoard()
@@ -292,7 +295,7 @@ function searchMobile() {
                 h["referer"] = "https://www.bing.com/"
                 h["accept-encoding"] = "UTF-8"
                 h["Content-Encoding"] = "UTF-8"
-                h["cookie"] = bingSearchMobileCookie
+                h["cookie"] = bingSearchMobileCookie2
                 let searchWord = lk.randomString(10)
                 let url = {
                     url: `https://www.bing.com/search?q=${searchWord}&search=&form=QBLH&sp=-1&lq=0&pq=${searchWord}&sc=8-2&qs=n&sk=&ghsh=0&ghacc=0&ghpl=`,
@@ -353,7 +356,7 @@ function searchPc() {
                 h["sec-ch-ua-full-version-list"] = "Chromium;v=110, Not A(Brand;v=24, Microsoft Edge;v=110"
                 h["accept-encoding"] = "UTF-8"
                 h["Content-Encoding"] = "UTF-8"
-                h["cookie"] = bingSearchCookie
+                h["cookie"] = bingSearchCookie2
                 let url = {
                     url: `https://www.bing.com/search?q=${lk.randomString(10)}`,
                     headers: h,
