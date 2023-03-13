@@ -150,12 +150,12 @@ async function all() {
         bingPointHeader = {}
         bingPointHeader["authority"] = 'rewards.bing.com'
         bingPointHeader["accept"] = 'application/json, text/javascript, */*; q=0.01'
-        bingPointHeader["accept-language"] = 'zh-CN,zh;q=0.9'
+        bingPointHeader["accept-language"] = 'zh-TW,zh;q=0.9'
         bingPointHeader["cookie"] = bingPointCookie
-        bingPointHeader["correlation-context"] = 'v=1,ms.b.tel.market=zh-CN'
+        bingPointHeader["correlation-context"] = 'v=1,ms.b.tel.market=zh-TW'
         bingPointHeader["dnt"] = '1'
         bingPointHeader["referer"] = 'https://rewards.bing.com/redeem/000899036002'
-        bingPointHeader["sec-ch-ua"] = 'Not A(Brand;v=24, Chromium;v=110'
+        bingPointHeader["sec-ch-ua"] = 'Not A(Brand;v=24, Chromium;v=110, Microsoft Edge;v=110'
         bingPointHeader["sec-ch-ua-arch"] = 'x86'
         bingPointHeader["sec-ch-ua-bitness"] = '64'
         bingPointHeader["sec-ch-ua-full-version"] = '110.0.5481.177'
@@ -282,17 +282,17 @@ function searchMobile() {
         let h = JSON.parse(JSON.stringify(bingPointHeader))
         if (nowString != isSearchMobileRepeat || searchMobileCount < searchMobileAmount) {
             for (let i = searchMobileCount; i < searchMobileAmount; i++) {
-                h["authority"] = "cn.bing.com"
+                h["authority"] = "www.bing.com"
                 h["accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
                 h["user-agent"] = "Mozilla/5.0 (iPhone; CPU iPhone OS 16_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.3 Mobile/15E148 Safari/604.1"
-                h["accept-language"] = "zh-CN,zh-Hans;q=0.9"
-                h["referer"] = "https://cn.bing.com/"
+                h["accept-language"] = "zh-TW,zh-Hans;q=0.9"
+                h["referer"] = "https://www.bing.com/"
                 h["accept-encoding"] = "UTF-8"
                 h["Content-Encoding"] = "UTF-8"
                 h["cookie"] = bingSearchMobileCookie
                 let searchWord = lk.randomString(10)
                 let url = {
-                    url: `https://cn.bing.com/search?q=${searchWord}&search=&form=QBLH&sp=-1&lq=0&pq=${searchWord}&sc=8-2&qs=n&sk=&ghsh=0&ghacc=0&ghpl=`,
+                    url: `https://www.bing.com/search?q=${searchWord}&search=&form=QBLH&sp=-1&lq=0&pq=${searchWord}&sc=8-2&qs=n&sk=&ghsh=0&ghacc=0&ghpl=`,
                     headers: h,
                     gzip: true
                 }
