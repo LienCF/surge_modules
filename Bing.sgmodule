@@ -2,7 +2,7 @@
 #!desc=BingEarnPoint
 
 [Script]
-BingPoints = type=cron,cronexp="10 0 * * *",wake-system=1,script-path=https://raw.githubusercontent.com/LienCF/surge_modules/master/Bing.js
+BingPoints = type=cron,cronexp="10 0 * * *",wake-system=1,script-path=https://github.com/LienCF/surge_modules/blob/master/Bing.js?raw=true
 
 [MITM]
 hostname = %APPEND% *.bing.com
