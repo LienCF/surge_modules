@@ -150,7 +150,7 @@ async function dealMsg(dashBoard, newPoint) {
     })
 }
 
-function all(account) {
+async function all(account) {
     let msg = ``
     if (bingPointCookie == '') {
         lk.execFail()
@@ -182,15 +182,15 @@ function all(account) {
         bingPointHeader["user-agent"] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36'
         lk.appendNotifyInfo(bingPointHeader)
         if (bingSearchCookie != '') {
-            searchPc(account)
+            await searchPc(account)
         }
         if (bingSearchMobileCookie != '') {
-            searchMobile(account)
+            await searchMobile(account)
         }
-        let dashBoard = getDashBoard()
+        let dashBoard = await getDashBoard()
         if (dashBoard?.dashboard) {
-            let newPoint = reportAct(dashBoard)
-            msg = dealMsg(dashBoard, newPoint)
+            let newPoint = await reportAct(dashBoard)
+            msg = await dealMsg(dashBoard, newPoint)
         } else {
             lk.appendNotifyInfo("❌未获取到活动信息")
         }
