@@ -166,9 +166,6 @@ function all(account) {
         else {
             bingPointHeader["cookie"] = bingPointCookie2
         }
-        lk.log('account ' + account)
-        lk.log('cookie ' + h["cookie"])
-
         bingPointHeader["correlation-context"] = 'v=1,ms.b.tel.market=zh-TW'
         bingPointHeader["dnt"] = '1'
         bingPointHeader["referer"] = 'https://rewards.bing.com/redeem/000899036002'
