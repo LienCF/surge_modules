@@ -183,15 +183,15 @@ function all(account) {
         bingPointHeader["user-agent"] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36'
         lk.appendNotifyInfo(bingPointHeader)
         if (bingSearchCookie != '') {
-            await searchPc(account)
+            searchPc(account)
         }
         if (bingSearchMobileCookie != '') {
-            await searchMobile(account)
+            searchMobile(account)
         }
-        let dashBoard = await getDashBoard()
+        let dashBoard = getDashBoard()
         if (dashBoard?.dashboard) {
-            let newPoint = await reportAct(dashBoard)
-            msg = await dealMsg(dashBoard, newPoint)
+            let newPoint = reportAct(dashBoard)
+            msg = dealMsg(dashBoard, newPoint)
         } else {
             lk.appendNotifyInfo("❌未获取到活动信息")
         }
