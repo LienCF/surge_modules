@@ -103,7 +103,7 @@ if (!lk.isExecComm) {
             "repo": "https://github.com/lowking/Scripts",
         })
         all('1')
-        all('2')
+        // all('2')
     }
 }
 
