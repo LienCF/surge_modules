@@ -16,7 +16,7 @@ Bing积分 = type=cron,cronexp="0 10 0 * * ?",wake-system=1,script-path=https://
 
 */
 
-const lk = new ToolKit(`Bing积分`, `BingPoint`, { "httpApi": "ffff@10.0.0.19:6166" })
+const lk = new ToolKit(`BingPoint`, `BingPoint`, { "httpApi": "ffff@10.0.0.19:6166" })
 const bingPointCookieKey = 'bingPointCookieKey'
 const bingSearchCookieKey = 'bingSearchCookieKey'
 const bingSearchCookieMobileKey = 'bingSearchCookieMobileKey'
@@ -72,7 +72,7 @@ if (!lk.isExecComm) {
                     "name": "Bing每日搜索cookie(移动端)",
                     "val": "",
                     "type": "text",
-                    "desc": "请使用手机打开https://cn.bing.com/search?q=test抓去对应请求的cookie"
+                    "desc": "请使用手机打开https://www.bing.com/search?q=test抓去对应请求的cookie"
                 },
                 {
                     "id": searchMobileAmountKey,
@@ -86,7 +86,7 @@ if (!lk.isExecComm) {
                     "name": "Bing每日搜索cookie(PC)",
                     "val": "",
                     "type": "text",
-                    "desc": "请使用电脑打开https://cn.bing.com/search?q=test抓去对应请求的cookie"
+                    "desc": "请使用电脑打开https://www.bing.com/search?q=test抓去对应请求的cookie"
                 },
                 {
                     "id": searchPcAmountKey,
