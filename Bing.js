@@ -40,8 +40,10 @@ let bingSearchMobileCookie2 = lk.getVal(bingSearchCookie2MobileKey)
 let isSearchRepeat = lk.getVal(searchRepeatKey)
 let isSearchMobileRepeat = lk.getVal(searchRepeatMobileKey)
 let searchPcCount = lk.getVal(searchPcCountKey, 0)
+searchPcCount = 0
 let searchPcAmount = lk.getVal(searchPcAmountKey, 10)
 let searchMobileCount = lk.getVal(searchMobileCountKey, 0)
+searchMobileCount = 0
 let searchMobileAmount = lk.getVal(searchMobileAmountKey, 10)
 let cachePoint = lk.getVal(bingCachePointKey, 0)
 let isAlreadySearchPc = false, isAlreadySearchMobile = false
