@@ -178,6 +178,7 @@ async function all(account) {
         bingPointHeader["sec-fetch-mode"] = 'cors'
         bingPointHeader["sec-fetch-site"] = 'same-origin'
         bingPointHeader["user-agent"] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36'
+        lk.appendNotifyInfo(bingPointHeader)
         if (bingSearchCookie != '') {
             await searchPc(account)
         }
