@@ -164,6 +164,9 @@ async function all(account) {
         else {
             bingPointHeader["cookie"] = bingPointCookie2
         }
+        lk.log('account ' + account)
+        lk.log('cookie ' + h["cookie"])
+
         bingPointHeader["correlation-context"] = 'v=1,ms.b.tel.market=zh-TW'
         bingPointHeader["dnt"] = '1'
         bingPointHeader["referer"] = 'https://rewards.bing.com/redeem/000899036002'
@@ -374,8 +377,6 @@ function searchPc(account) {
                 else {
                     h["cookie"] = bingSearchCookie2
                 }
-                lk.log('account ' + account)
-                lk.log('cookie ' + h["cookie"])
                 let url = {
                     url: `https://www.bing.com/search?q=${lk.randomString(10)}`,
                     headers: h,
