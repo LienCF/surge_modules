@@ -374,6 +374,8 @@ function searchPc(account) {
                 else {
                     h["cookie"] = bingSearchCookie2
                 }
+                lk.log('account ' + account)
+                lk.log('cookie ' + h["cookie"])
                 let url = {
                     url: `https://www.bing.com/search?q=${lk.randomString(10)}`,
                     headers: h,
