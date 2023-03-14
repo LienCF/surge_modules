@@ -148,7 +148,7 @@ async function dealMsg(dashBoard, newPoint) {
     })
 }
 
-async function all(account) {
+function all(account) {
     let msg = ``
     if (bingPointCookie == '') {
         lk.execFail()
