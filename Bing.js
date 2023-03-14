@@ -100,8 +100,8 @@ if (!lk.isExecComm) {
             "author": "@lowking",
             "repo": "https://github.com/lowking/Scripts",
         })
-        all(1)
-        all(2)
+        all('1')
+        all('2')
     }
 }
 
@@ -158,7 +158,7 @@ async function all(account) {
         bingPointHeader["authority"] = 'rewards.bing.com'
         bingPointHeader["accept"] = 'application/json, text/javascript, */*; q=0.01'
         bingPointHeader["accept-language"] = 'zh-TW,zh;q=0.9'
-        if (account == 1) {
+        if (account == '1') {
             bingPointHeader["cookie"] = bingPointCookie
         }
         else {
@@ -302,7 +302,7 @@ function searchMobile(account) {
                 h["referer"] = "https://www.bing.com/"
                 h["accept-encoding"] = "UTF-8"
                 h["Content-Encoding"] = "UTF-8"
-                if (account == 1) {
+                if (account == '1') {
                     h["cookie"] = bingSearchMobileCookie
                 }
                 else {
@@ -368,7 +368,7 @@ function searchPc(account) {
                 h["sec-ch-ua-full-version-list"] = "Chromium;v=110, Not A(Brand;v=24, Microsoft Edge;v=110"
                 h["accept-encoding"] = "UTF-8"
                 h["Content-Encoding"] = "UTF-8"
-                if (account == 1) {
+                if (account == '1') {
                     h["cookie"] = bingSearchCookie
                 }
                 else {
