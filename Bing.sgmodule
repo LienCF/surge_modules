@@ -2,6 +2,8 @@
 #!desc=BingEarnPoint
 
 [Script]
+BingRewardsCookie = requires-body=0,type=http-request,pattern=https:\/\/rewards\.bing\.com,script-path=https://github.com/LienCF/surge_modules/blob/master/BingRewardsCookie.js?raw=true,timeout=120,max-size=1638400
+BingSearchCookie = requires-body=0,type=http-request,pattern=https:\/\/www\.bing\.com\/search,script-path=https://github.com/LienCF/surge_modules/blob/master/BingSearchCookie.js?raw=true,timeout=120,max-size=1638400
 BingPoints = type=cron,cronexp="0 10 0 * * *",wake-system=1,script-path=https://github.com/LienCF/surge_modules/blob/master/Bing.js?raw=true,timeout=120,max-size=1638400
 
 [MITM]
