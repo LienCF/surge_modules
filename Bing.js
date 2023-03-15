@@ -1,5 +1,5 @@
 /*
-Bing积分-lowking-v1.2.1
+Bing积分-lowking-v1.3.3
 
 ⚠️只测试过surge没有其他app自行测试
 
@@ -11,7 +11,7 @@ Surge 4.2.0+ 脚本配置:
 
 [Script]
 # > Bing积分
-# Bing积分cookie = requires-body=0,type=http-request,pattern=https:\/\/rewards\.bing\.com,script-path=https://raw.githubusercontent.com/lowking/Scripts/master/bing/bingPoint.js
+Bing积分cookie = requires-body=0,type=http-request,pattern=https:\/\/rewards\.bing\.com,script-path=https://raw.githubusercontent.com/lowking/Scripts/master/bing/bingPoint.js
 Bing积分 = type=cron,cronexp="0 10 0 * * ?",wake-system=1,script-path=https://raw.githubusercontent.com/lowking/Scripts/master/bing/bingPoint.js
 
 */
@@ -25,10 +25,13 @@ const bingSearchCookie2Key = 'bingSearchCookie2Key'
 const bingSearchCookie2MobileKey = 'bingSearchCookie2MobileKey'
 const searchRepeatKey = "bingSearchRepeatKey"
 const searchRepeatMobileKey = "searchRepeatMobileKey"
+const searchRepeatEdgeKey = "searchRepeatEdgeKey"
 const searchPcCountKey = "bingSearchPcCountKey"
 const searchPcAmountKey = "searchPcAmountKey"
 const searchMobileCountKey = "bingSearchMobileCountKey"
 const searchMobileAmountKey = "searchMobileAmountKey"
+const searchEdgeCountKey = "bingSearchEdgeCountKey"
+const searchEdgeAmountKey = "searchEdgeAmountKey"
 const bingCachePointKey = "bingCachePointKey"
 let bingPointHeader
 let bingPointCookie = lk.getVal(bingPointCookieKey)
@@ -39,14 +42,15 @@ let bingSearchCookie2 = lk.getVal(bingSearchCookie2Key)
 let bingSearchMobileCookie2 = lk.getVal(bingSearchCookie2MobileKey)
 let isSearchRepeat = lk.getVal(searchRepeatKey)
 let isSearchMobileRepeat = lk.getVal(searchRepeatMobileKey)
+let isSearchEdgeRepeat = lk.getVal(searchRepeatEdgeKey)
 let searchPcCount = lk.getVal(searchPcCountKey, 0)
-searchPcCount = 0
 let searchPcAmount = lk.getVal(searchPcAmountKey, 10)
 let searchMobileCount = lk.getVal(searchMobileCountKey, 0)
-searchMobileCount = 0
 let searchMobileAmount = lk.getVal(searchMobileAmountKey, 10)
+let searchEdgeCount = lk.getVal(searchEdgeCountKey, 0)
+let searchEdgeAmount = lk.getVal(searchEdgeAmountKey, 10)
 let cachePoint = lk.getVal(bingCachePointKey, 0)
-let isAlreadySearchPc = false, isAlreadySearchMobile = false
+let isAlreadySearchPc = false, isAlreadySearchMobile = false, isAlreadySearchEdge = false
 let nowString = lk.formatDate(new Date(), 'yyyyMMdd')
 
 if (!lk.isExecComm) {
@@ -94,6 +98,13 @@ if (!lk.isExecComm) {
                     "val": 10,
                     "type": "number",
                     "desc": "Bing每日执行搜索(PC)次数"
+                },
+                {
+                    "id": searchEdgeAmountKey,
+                    "name": "Bing每日执行搜索(Edge)次数",
+                    "val": 10,
+                    "type": "number",
+                    "desc": "Bing每日执行搜索(Edge)次数"
                 }
             ],
             "keys": [bingPointCookieKey]
@@ -182,6 +193,8 @@ async function all(account) {
         bingPointHeader["user-agent"] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36'
         if (bingSearchCookie != '') {
             await searchPc(account)
+            await lk.sleep(5000)
+            await searchEdge()
         }
         await lk.sleep(5000)
         if (bingSearchMobileCookie != '') {
@@ -277,6 +290,67 @@ function doReportActForUrlreward(title, item, rvt) {
                 resolve(ret)
             }
         })
+    })
+}
+
+function searchEdge() {
+    return new Promise(async (resolve, _reject) => {
+        lk.log(`开始执行每日搜索(Edge)`)
+        let isAlwaysSearch = searchEdgeCount == -1
+        if (isAlwaysSearch) {
+            // 总是搜索的话，赋值为0，搜索次数设置为1
+            searchEdgeCount = 0
+            searchEdgeAmount = 1
+        }
+        if (!isAlwaysSearch && nowString == isSearchEdgeRepeat && searchEdgeCount >= searchEdgeAmount) {
+            lk.log(`今日搜索(Edge)已达配置上限：${searchEdgeAmount}次`)
+            isAlreadySearchEdge = true
+            resolve()
+            return
+        }
+        let h = JSON.parse(JSON.stringify(bingPointHeader))
+        if (nowString != isSearchEdgeRepeat || searchEdgeCount < searchEdgeAmount) {
+            for (let i = searchEdgeCount; i < searchEdgeAmount; i++) {
+                h["authority"] = "cn.bing.com"
+                h["upgrade-insecure-requests"] = "1"
+                h["accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"
+                h["user-agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.63"
+                h["sec-fetch-site"] = "none"
+                h["sec-fetch-mode"] = "navigate"
+                h["sec-fetch-user"] = "?1"
+                h["sec-fetch-dest"] = "document"
+                h["sec-fetch-dest"] = "document"
+                h["sec-ch-ua-full-version-list"] = "Not A(Brand;v=24.0.0.0, Chromium;v=110.0.5481.177"
+                h["accept-encoding"] = "UTF-8"
+                h["Content-Encoding"] = "UTF-8"
+                h["cookie"] = bingSearchCookie
+                let url = {
+                    url: `https://www.bing.com/search?q=${lk.randomString(10)}`,
+                    headers: h,
+                    gzip: true
+                }
+                lk.get(url, (error, _response, data) => {
+                    ++searchEdgeCount
+                })
+            }
+
+            while (searchEdgeCount < searchEdgeAmount) {
+                lk.log(`waiting`)
+                await lk.sleep(200)
+            }
+            try {
+                if (!isAlwaysSearch) {
+                    lk.log(`保存今天(${nowString})搜索(Edge)次数：${searchEdgeCount}`)
+                    lk.setVal(searchEdgeCountKey, JSON.stringify(searchEdgeCount))
+                }
+                lk.setVal(searchRepeatKey, nowString)
+            } catch (e) {
+                lk.logErr(e)
+            }
+            resolve()
+        } else {
+            resolve()
+        }
     })
 }
 
@@ -470,7 +544,7 @@ function reportAct(dashBoard) {
                     err = `🎉任务都做完啦，共获得${completePoint}积分`
                     break
                 }
-                if (new Date().getTime() - lk.startTime > 5 * 1000) {
+                if (new Date().getTime() - lk.startTime > 30 * 1000) {
                     lk.log(`执行超时，强制退出`)
                     err = "❌执行超时，强制退出（请添加分流切换节点）"
                     break
