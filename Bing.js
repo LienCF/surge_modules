@@ -345,7 +345,7 @@ function searchEdge() {
             try {
                 if (!isAlwaysSearch) {
                     lk.log(`Save today's (${nowString}) search (Edge) count: ${searchEdgeCount}`)
-                    lk.setVal(searchEdgeCountKey, JSON.stringify(searchEdgeCount))
+                    // lk.setVal(searchEdgeCountKey, JSON.stringify(searchEdgeCount))
                 }
                 lk.setVal(searchRepeatKey, nowString)
             } catch (e) {
@@ -402,7 +402,7 @@ function searchMobile() {
             try {
                 if (!isAlwaysSearch) {
                     lk.log(`Save today's (${nowString}) search (Mobile) count: ${searchMobileCount}`)
-                    lk.setVal(searchMobileCountKey, JSON.stringify(searchMobileCount))
+                    // lk.setVal(searchMobileCountKey, JSON.stringify(searchMobileCount))
                 }
                 lk.setVal(searchRepeatMobileKey, nowString)
             } catch (e) {
@@ -462,7 +462,7 @@ function searchPc() {
             try {
                 if (!isAlwaysSearch) {
                     lk.log(`Save today's (${nowString}) search (PC) count: ${searchPcCount}`)
-                    lk.setVal(searchPcCountKey, JSON.stringify(searchPcCount))
+                    // lk.setVal(searchPcCountKey, JSON.stringify(searchPcCount))
                 }
                 lk.setVal(searchRepeatKey, nowString)
             } catch (e) {
