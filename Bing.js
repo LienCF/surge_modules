@@ -43,10 +43,13 @@ let isSearchRepeat = lk.getVal(searchRepeatKey)
 let isSearchMobileRepeat = lk.getVal(searchRepeatMobileKey)
 let isSearchEdgeRepeat = lk.getVal(searchRepeatEdgeKey)
 let searchPcCount = lk.getVal(searchPcCountKey, 0)
+searchPcCount = 0
 let searchPcAmount = lk.getVal(searchPcAmountKey, 10)
 let searchMobileCount = lk.getVal(searchMobileCountKey, 0)
+searchMobileCount = 0
 let searchMobileAmount = lk.getVal(searchMobileAmountKey, 10)
 let searchEdgeCount = lk.getVal(searchEdgeCountKey, 0)
+searchEdgeCount = 0
 let searchEdgeAmount = lk.getVal(searchEdgeAmountKey, 10)
 let cachePoint = lk.getVal(bingCachePointKey, 0)
 let isContinueWhenZero = lk.getVal(bingIsContinueWhenZeroKey, 1)
@@ -345,7 +348,7 @@ function searchEdge() {
             try {
                 if (!isAlwaysSearch) {
                     lk.log(`Save today's (${nowString}) search (Edge) count: ${searchEdgeCount}`)
-                    // lk.setVal(searchEdgeCountKey, JSON.stringify(searchEdgeCount))
+                    lk.setVal(searchEdgeCountKey, JSON.stringify(searchEdgeCount))
                 }
                 lk.setVal(searchRepeatKey, nowString)
             } catch (e) {
@@ -402,7 +405,7 @@ function searchMobile() {
             try {
                 if (!isAlwaysSearch) {
                     lk.log(`Save today's (${nowString}) search (Mobile) count: ${searchMobileCount}`)
-                    // lk.setVal(searchMobileCountKey, JSON.stringify(searchMobileCount))
+                    lk.setVal(searchMobileCountKey, JSON.stringify(searchMobileCount))
                 }
                 lk.setVal(searchRepeatMobileKey, nowString)
             } catch (e) {
@@ -462,7 +465,7 @@ function searchPc() {
             try {
                 if (!isAlwaysSearch) {
                     lk.log(`Save today's (${nowString}) search (PC) count: ${searchPcCount}`)
-                    // lk.setVal(searchPcCountKey, JSON.stringify(searchPcCount))
+                    lk.setVal(searchPcCountKey, JSON.stringify(searchPcCount))
                 }
                 lk.setVal(searchRepeatKey, nowString)
             } catch (e) {
