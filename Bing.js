@@ -13,7 +13,7 @@ Surge 4.2.0+ Script Configuration:
 
 [Script]
 # > Bing Points
-Bing Points Cookie = requires-body=0,type=http-request,pattern=https:\/\/rewards\.bing\.com,script-path=https://raw.githubusercontent.com/lowking/Scripts/master/bing/bingPoint.js
+BingPointsCookie = requires-body=0,type=http-request,pattern=https:\/\/rewards\.bing\.com,script-path=https://raw.githubusercontent.com/lowking/Scripts/master/bing/bingPoint.js
 Bing Points = type=cron,cronexp="0 10 0 * * ?",wake-system=1,script-path=https://raw.githubusercontent.com/lowking/Scripts/master/bing/bingPoint.js
 
 */
@@ -133,6 +133,8 @@ function getCookie() {
             const bingHeader = JSON.stringify($request.headers.cookie)
             if (!!bingHeader) {
                 lk.setVal(bingPointCookieKey, bingHeader)
+                lk.setVal(bingSearchCookieKey, bingHeader)
+                lk.setVal(bingSearchCookieMobileKey, bingHeader)
                 lk.appendNotifyInfo('🎉Successfully obtained cookie, you can close the corresponding script')
             }
         } catch (e) {
@@ -302,7 +304,7 @@ function searchEdge() {
         if (isAlwaysSearch) {
             // If always searching, set the value to 0 and the search count to 1
             searchEdgeCount = 0
-            searchEdgeAmount = 1
+            searchEdgeAmount = 15
         }
         if (!isAlwaysSearch && nowString == isSearchEdgeRepeat && searchEdgeCount >= searchEdgeAmount) {
             lk.log(`Today's search (Edge) has reached the configured limit: ${searchEdgeAmount} times`)
@@ -363,7 +365,7 @@ function searchMobile() {
         if (isAlwaysSearch) {
             // If always searching, set the value to 0 and the search count to 1
             searchMobileCount = 0
-            searchMobileAmount = 1
+            searchMobileAmount = 60
         }
         if (!isAlwaysSearch && nowString == isSearchMobileRepeat && searchMobileCount >= searchMobileAmount) {
             lk.log(`Today's search (Mobile) has reached the configured limit: ${searchMobileAmount} times`)
@@ -420,7 +422,7 @@ function searchPc() {
         if (isAlwaysSearch) {
             // If always searching, set the value to 0 and the search count to 1
             searchPcCount = 0
-            searchPcAmount = 1
+            searchPcAmount = 90
         }
         if (!isAlwaysSearch && nowString == isSearchRepeat && searchPcCount >= searchPcAmount) {
             lk.log(`Today's search (PC) has reached the configured limit: ${searchPcAmount} times`)
