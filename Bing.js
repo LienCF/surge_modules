@@ -1,24 +1,23 @@
 /*
-Bing Points-lowking-v2.3.5
+Bing积分-lowking-v2.3.5
 
-⚠️Only tested on Surge, other apps need to be tested by yourself
-Version 1.3.4 speed update, otherwise the execution status cannot be reset the next day, resulting in the inability to complete tasks
-Remember to set the daily task reset time in boxjs, the default is 8 o'clock in the morning if not set
-
-hostname = rewards.bing.com
+⚠️只测试过surge没有其他app自行测试
+1.3.4版本的速度更新，不然第二天无法重置执行状态，导致无法做任务
+记得到boxjs里面设置每日任务重置时间，不设置默认每天早上8点
 
 ************************
-Surge 4.2.0+ Script Configuration:
+Surge 4.2.0+ 脚本配置(其他APP自行转换配置):
 ************************
 
 [Script]
-# > Bing Points
-BingPointsCookie = requires-body=0,type=http-request,pattern=https:\/\/rewards\.bing\.com,script-path=https://raw.githubusercontent.com/lowking/Scripts/master/bing/bingPoint.js
-Bing Points = type=cron,cronexp="0 10 0 * * ?",wake-system=1,script-path=https://raw.githubusercontent.com/lowking/Scripts/master/bing/bingPoint.js
+# > Bing积分
+Bing积分cookie = requires-body=0,type=http-request,pattern=https:\/\/rewards\.bing\.com,script-path=https://raw.githubusercontent.com/lowking/Scripts/master/bing/bingPoint.js
+Bing积分 = type=cron,cronexp="0 10 0 * * ?",wake-system=1,script-path=https://raw.githubusercontent.com/lowking/Scripts/master/bing/bingPoint.js
 
+[MITM]
+hostname = %APPEND% rewards.bing.com
 */
-
-const lk = new ToolKit(`Bing Points`, `BingPoint`, { "httpApi": "ffff@10.0.0.19:6166" })
+const lk = new ToolKit(`Bing积分`, `BingPoint`, { "httpApi": "ffff@10.0.0.19:6166" })
 const scriptTimeout = 30
 const bingPointCookieKey = 'bingPointCookieKey'
 const bingSearchCookieKey = 'bingSearchCookieKey'
@@ -70,52 +69,52 @@ if (!lk.isExecComm) {
             "settings": [
                 {
                     "id": bingResetHoursKey,
-                    "name": "Bing daily task reset time",
+                    "name": "Bing每日任务重置时间",
                     "val": 8,
                     "type": "number",
-                    "desc": "Write the number of hours, default: 8"
+                    "desc": "写小时数，默认：8"
                 },
                 {
                     "id": bingPointCookieKey,
-                    "name": "Bing points cookie",
+                    "name": "Bing积分cookie",
                     "val": "",
                     "type": "text",
-                    "desc": "Bing points cookie"
+                    "desc": "Bing积分cookie"
                 },
                 {
                     "id": bingSearchCookieMobileKey,
-                    "name": "Bing daily search cookie (mobile)",
+                    "name": "Bing每日搜索cookie(移动端)",
                     "val": "",
                     "type": "text",
-                    "desc": "Please use your mobile phone to open https://cn.bing.com/search?q=test and capture the corresponding request cookie"
+                    "desc": "请使用手机打开https://cn.bing.com/search?q=test抓去对应请求的cookie"
                 },
                 {
                     "id": searchMobileAmountKey,
-                    "name": "Bing daily search execution times (mobile)",
+                    "name": "Bing每日执行搜索(移动端)次数",
                     "val": 10,
                     "type": "number",
-                    "desc": "Bing daily search execution times (mobile)"
+                    "desc": "Bing每日执行搜索(移动端)次数"
                 },
                 {
                     "id": bingSearchCookieKey,
-                    "name": "Bing daily search cookie (PC)",
+                    "name": "Bing每日搜索cookie(PC)",
                     "val": "",
                     "type": "text",
-                    "desc": "Please use your computer to open https://cn.bing.com/search?q=test and capture the corresponding request cookie"
+                    "desc": "请使用电脑打开https://cn.bing.com/search?q=test抓去对应请求的cookie"
                 },
                 {
                     "id": searchPcAmountKey,
-                    "name": "Bing daily search execution times (PC)",
+                    "name": "Bing每日执行搜索(PC)次数",
                     "val": 10,
                     "type": "number",
-                    "desc": "Bing daily search execution times (PC)"
+                    "desc": "Bing每日执行搜索(PC)次数"
                 },
                 {
                     "id": searchEdgeAmountKey,
-                    "name": "Bing daily search execution times (Edge)",
+                    "name": "Bing每日执行搜索(Edge)次数",
                     "val": 10,
                     "type": "number",
-                    "desc": "Bing daily search execution times (Edge)"
+                    "desc": "Bing每日执行搜索(Edge)次数"
                 }
             ],
             "keys": [bingPointCookieKey],
@@ -131,18 +130,18 @@ if (!lk.isExecComm) {
 
 function getCookie() {
     if (lk.isGetCookie(/\/rewards\.bing\.com/)) {
-        lk.log(`Start getting cookie`)
+        lk.log(`开始获取cookie`)
         try {
             const bingHeader = JSON.stringify($request.headers.cookie)
             if (!!bingHeader) {
                 lk.setVal(bingPointCookieKey, bingHeader)
                 lk.setVal(bingSearchCookieKey, bingHeader)
                 lk.setVal(bingSearchCookieMobileKey, bingHeader)
-                // lk.appendNotifyInfo('🎉Successfully obtained cookie, you can close the corresponding script')
+                // lk.appendNotifyInfo('🎉成功获取cookie，可以关闭相应脚本')
             }
         } catch (e) {
             lk.execFail()
-            lk.appendNotifyInfo('❌Failed to get bing cookie')
+            lk.appendNotifyInfo('❌获取bing cookie失败')
         }
     }
     lk.msg(``)
@@ -155,15 +154,15 @@ async function dealMsg(dashBoard, newPoint) {
         if (availablePoints != "-" && cachePoint) {
             lk.setVal(bingCachePointKey, JSON.stringify(availablePoints))
             let increaseAmount = availablePoints - cachePoint
-            lk.prependNotifyInfo(`Points this execution：${increaseAmount >= 0 ? "+" + increaseAmount : increaseAmount}`)
+            lk.prependNotifyInfo(`本次执行：${increaseAmount >= 0 ? "+" + increaseAmount : increaseAmount}`)
             lk.setVal(bingIsContinueWhenZeroKey, JSON.stringify(increaseAmount + newPoint))
         }
-        resolve(`Current points：${availablePoints}${newPoint > 0 ? "+" + newPoint : ""}   Daily points：${dashBoard?.dashboard?.userStatus?.counters?.dailyPoint[0]?.pointProgress || "-"}/${dashBoard?.dashboard?.userStatus?.counters?.dailyPoint[0]?.pointProgressMax || "-"}`)
+        resolve(`当前积分：${availablePoints}${newPoint > 0 ? "+" + newPoint : ""}   日常获得：${dashBoard?.dashboard?.userStatus?.counters?.dailyPoint[0]?.pointProgress || "-"}/${dashBoard?.dashboard?.userStatus?.counters?.dailyPoint[0]?.pointProgressMax || "-"}`)
     })
 }
 
 async function all() {
-    // Allow execution after the daily task reset time has been reached
+    // 每天任务重置时间到了之后，允许执行
     let isReset = lk.now.getHours() == bingResetHours
     if (isReset) {
         searchPcCount = 0
@@ -177,7 +176,7 @@ async function all() {
     let msg = ``
     if (bingPointCookie == '') {
         lk.execFail()
-        lk.appendNotifyInfo(`⚠️Please open rewards.bing.com to get the cookie first`)
+        lk.appendNotifyInfo(`⚠️请先打开rewards.bing.com获取cookie`)
     } else {
         bingPointHeader = {}
         bingPointHeader["authority"] = 'rewards.bing.com'
@@ -213,7 +212,7 @@ async function all() {
             let newPoint = await reportAct(dashBoard)
             msg = await dealMsg(dashBoard, newPoint)
         } else {
-            lk.appendNotifyInfo("❌Failed to get activity information")
+            lk.appendNotifyInfo("❌未获取到活动信息")
         }
     }
     if (!lk.isNode()) {
@@ -225,8 +224,8 @@ async function all() {
 
 function doReportActForQuiz(title, item, rvt) {
     return new Promise((resolve, _reject) => {
-        // todo Reserved method, currently the official website can't do all tasks manually🤣
-        const t = 'Do quiz reward task: ' + title
+        // todo 预留方法，目前官网手动都做不了都任务🤣
+        const t = '做问答奖励任务：' + title
         lk.log(t)
         let ret = 0
         let url = {
@@ -241,7 +240,7 @@ function doReportActForQuiz(title, item, rvt) {
                 if (error) {
                     lk.execFail()
                     lk.log(error)
-                    lk.appendNotifyInfo(`❌${t} failed, please try again later`)
+                    lk.appendNotifyInfo(`❌${t}失败，请稍后再试`)
                 } else {
                     // {"activity":{"id":"3484a93d-db98-490f-998e-10e64e481de7","points":10,"quantity":1,"timestamp":"2023-03-01T22:22:39.5968778+08:00","activityType":11,"channel":"","activitySubtype":"","currencyCode":"","purchasePrice":0.0,"orderId":""},"balance":157}
                     lk.log(data)
@@ -252,9 +251,9 @@ function doReportActForQuiz(title, item, rvt) {
                 }
             } catch (e) {
                 lk.logErr(e)
-                lk.log(`bing returned data: ${data}`)
+                lk.log(`bing返回数据：${data}`)
                 lk.execFail()
-                lk.appendNotifyInfo(`❌${t} error, please try again later`)
+                lk.appendNotifyInfo(`❌${t}错误，请稍后再试`)
             } finally {
                 resolve(ret)
             }
@@ -264,7 +263,7 @@ function doReportActForQuiz(title, item, rvt) {
 
 function doReportActForUrlreward(title, item, rvt) {
     return new Promise((resolve, _reject) => {
-        const t = 'Perform URL reward task: ' + title
+        const t = '做url奖励任务：' + title
         lk.log(t)
         let ret = 0
         let url = {
@@ -279,7 +278,7 @@ function doReportActForUrlreward(title, item, rvt) {
                 if (error) {
                     lk.execFail()
                     lk.log(error)
-                    lk.appendNotifyInfo(`❌${t} failed, please try again later`)
+                    lk.appendNotifyInfo(`❌${t}失败，请稍后再试`)
                 } else {
                     // {"activity":{"id":"3484a93d-db98-490f-998e-10e64e481de7","points":10,"quantity":1,"timestamp":"2023-03-01T22:22:39.5968778+08:00","activityType":11,"channel":"","activitySubtype":"","currencyCode":"","purchasePrice":0.0,"orderId":""},"balance":157}
                     lk.log(data)
@@ -290,9 +289,9 @@ function doReportActForUrlreward(title, item, rvt) {
                 }
             } catch (e) {
                 lk.logErr(e)
-                lk.log(`bing returned data: ${data}`)
+                lk.log(`bing返回数据：${data}`)
                 lk.execFail()
-                lk.appendNotifyInfo(`❌${t} error, please try again later`)
+                lk.appendNotifyInfo(`❌${t}错误，请稍后再试`)
             } finally {
                 resolve(ret)
             }
@@ -302,15 +301,15 @@ function doReportActForUrlreward(title, item, rvt) {
 
 function searchEdge() {
     return new Promise(async (resolve, _reject) => {
-        lk.log(`Start executing daily search (Edge)`)
+        lk.log(`开始执行每日搜索(Edge)`)
         let isAlwaysSearch = searchEdgeCount == -1
         if (isAlwaysSearch) {
-            // If always searching, set the value to 0 and the search count to 1
+            // 总是搜索的话，赋值为0，搜索次数设置为1
             searchEdgeCount = 0
-            searchEdgeAmount = 15
+            searchEdgeAmount = 1
         }
         if (!isAlwaysSearch && nowString == isSearchEdgeRepeat && searchEdgeCount >= searchEdgeAmount) {
-            lk.log(`Today's search (Edge) has reached the configured limit: ${searchEdgeAmount} times`)
+            lk.log(`今日搜索(Edge)已达配置上限：${searchEdgeAmount}次`)
             isAlreadySearchEdge = true
             resolve()
             return
@@ -347,7 +346,7 @@ function searchEdge() {
             }
             try {
                 if (!isAlwaysSearch) {
-                    lk.log(`Save today's (${nowString}) search (Edge) count: ${searchEdgeCount}`)
+                    lk.log(`保存今天(${nowString})搜索(Edge)次数：${searchEdgeCount}`)
                     lk.setVal(searchEdgeCountKey, JSON.stringify(searchEdgeCount))
                 }
                 lk.setVal(searchRepeatKey, nowString)
@@ -363,15 +362,15 @@ function searchEdge() {
 
 function searchMobile() {
     return new Promise(async (resolve, _reject) => {
-        lk.log(`Start executing daily search (Mobile)`)
+        lk.log(`开始执行每日搜索(移动端)`)
         let isAlwaysSearch = searchMobileCount == -1
         if (isAlwaysSearch) {
-            // If always searching, set the value to 0 and the search count to 1
+            // 总是搜索的话，赋值为0，搜索次数设置为1
             searchMobileCount = 0
-            searchMobileAmount = 60
+            searchMobileAmount = 1
         }
         if (!isAlwaysSearch && nowString == isSearchMobileRepeat && searchMobileCount >= searchMobileAmount) {
-            lk.log(`Today's search (Mobile) has reached the configured limit: ${searchMobileAmount} times`)
+            lk.log(`今日搜索(移动端)已达配置上限：${searchMobileAmount}次`)
             isAlreadySearchMobile = true
             resolve()
             return
@@ -394,7 +393,7 @@ function searchMobile() {
                     gzip: true
                 }
                 lk.get(url, (error, _response, data) => {
-                    ++searchMobile
+                    ++searchMobileCount
                 })
             }
 
@@ -404,7 +403,7 @@ function searchMobile() {
             }
             try {
                 if (!isAlwaysSearch) {
-                    lk.log(`Save today's (${nowString}) search (Mobile) count: ${searchMobileCount}`)
+                    lk.log(`保存今天(${nowString})搜索(移动端)次数：${searchMobileCount}`)
                     lk.setVal(searchMobileCountKey, JSON.stringify(searchMobileCount))
                 }
                 lk.setVal(searchRepeatMobileKey, nowString)
@@ -420,15 +419,15 @@ function searchMobile() {
 
 function searchPc() {
     return new Promise(async (resolve, _reject) => {
-        lk.log(`Start executing daily search (PC)`)
+        lk.log(`开始执行每日搜索(PC)`)
         let isAlwaysSearch = searchPcCount == -1
         if (isAlwaysSearch) {
-            // If always searching, set the value to 0 and the search count to 1
+            // 总是搜索的话，赋值为0，搜索次数设置为1
             searchPcCount = 0
-            searchPcAmount = 90
+            searchPcAmount = 1
         }
         if (!isAlwaysSearch && nowString == isSearchRepeat && searchPcCount >= searchPcAmount) {
-            lk.log(`Today's search (PC) has reached the configured limit: ${searchPcAmount} times`)
+            lk.log(`今日搜索(PC)已达配置上限：${searchPcAmount}次`)
             isAlreadySearchPc = true
             resolve()
             return
@@ -464,7 +463,7 @@ function searchPc() {
             }
             try {
                 if (!isAlwaysSearch) {
-                    lk.log(`Save today's (${nowString}) search (PC) count: ${searchPcCount}`)
+                    lk.log(`保存今天(${nowString})搜索(PC)次数：${searchPcCount}`)
                     lk.setVal(searchPcCountKey, JSON.stringify(searchPcCount))
                 }
                 lk.setVal(searchRepeatKey, nowString)
@@ -496,8 +495,8 @@ function reportAct(dashBoard) {
                 if (item?.complete == false) {
                     if (point > 0) {
                         let ret = 0
-                        let b = true || title == "Rewa rds Challenge"
-                        lk.log(`Start task: ${title}【${point}】\n${type}\n${b}`)
+                        let b = true || title == "Rewa rds 挑戰"
+                        lk.log(`开始任务：${title}【${point}】\n${type}\n${b}`)
                         if (b) {
                             if (type === "urlreward") {
                                 ret = await doReportActForUrlreward(title, item, dashBoard?.rvt)
@@ -537,13 +536,13 @@ function reportAct(dashBoard) {
             while (true) {
                 lk.log(`total: ${morePromotions.length}, suc: ${sucCount}, fail: ${failCount}, complete: ${completeCount}, todo:${todoCount}`)
                 if (todoCount + completeCount >= morePromotions.length) {
-                    lk.log(`All tasks are done, exit`)
-                    err = `🎉All tasks are done, a total of ${completePoint} points are obtained`
+                    lk.log(`任务都做完了，退出`)
+                    err = `🎉任务都做完啦，共获得${completePoint}积分`
                     break
                 }
                 if (new Date().getTime() - lk.startTime > scriptTimeout * 1000) {
-                    lk.log(`Execution timeout, forced exit`)
-                    err = "❌Execution timeout, forced exit (please add traffic switching node)"
+                    lk.log(`执行超时，强制退出`)
+                    err = "❌执行超时，强制退出（请添加分流切换节点）"
                     break
                 }
                 await lk.sleep(100)
@@ -552,18 +551,18 @@ function reportAct(dashBoard) {
             if (!err) {
                 if (totalCount > 0) {
                     lk.execFail()
-                    lk.prependNotifyInfo(`🎉Success: ${sucCount} tasks, ❌Failed: ${failCount} tasks`)
+                    lk.prependNotifyInfo(`🎉成功：${sucCount}个，❌失败：${failCount}个`)
                 } else {
-                    lk.appendNotifyInfo(`🎉All tasks for today are done`)
+                    lk.appendNotifyInfo(`🎉今天的任务都做完啦`)
                 }
             } else {
                 lk.prependNotifyInfo(err)
-                lk.prependNotifyInfo(`🎉Success: ${sucCount} tasks, ❌Failed: ${failCount} tasks, Completed today: ${completeCount} tasks`)
+                lk.prependNotifyInfo(`🎉：${sucCount}个，❌：${failCount}个，今日已完成：${completeCount}个`)
             }
             resolve(newPoint)
         } else {
             lk.execFail()
-            lk.prependNotifyInfo(`❌Failed to get activity information`)
+            lk.prependNotifyInfo(`❌未获取到活动信息`)
             resolve(newPoint)
         }
     })
@@ -571,8 +570,8 @@ function reportAct(dashBoard) {
 
 function getDashBoard() {
     return new Promise((resolve, _reject) => {
-        const t = 'Getting dashboard information'
-        lk.log(`Starting ${t}`)
+        const t = '获取面板信息'
+        lk.log(`开始${t}`)
         let url = {
             url: `https://rewards.bing.com/?_=${lk.startTime}`,
             headers: bingPointHeader,
@@ -581,17 +580,17 @@ function getDashBoard() {
             try {
                 if (error) {
                     lk.execFail()
-                    lk.appendNotifyInfo(`❌Failed to get ${t}, please try again later`)
+                    lk.appendNotifyInfo(`❌${t}失败，请稍后再试`)
                     resolve({})
                 } else {
                     let rvt = data.split("__RequestVerificationToken")[1].split("value=\"")[1].split("\"")[0]
                     url.url = `https://rewards.bing.com/api/getuserinfo?type=1&X-Requested-With=XMLHttpRequest&_=${lk.startTime}`
                     let dashboard = JSON.parse(data.split("var dashboard = ")[1].split("\n")[0].slice(0, -2))
-                    // The structure is the same as the one returned by the web page above
+                    // 和上面网页返回截取的结构一样
                     // lk.get(url, (error, _response, data) => {
                     //     if (error) {
                     //         lk.execFail()
-                    //         lk.appendNotifyInfo(`❌Failed to get ${t}, please try again later`)
+                    //         lk.appendNotifyInfo(`❌${t}失败，请稍后再试`)
                     //         resolve({})
                     //     } else {
                     //         lk.log(JSON.stringify(dashboard))
@@ -612,9 +611,9 @@ function getDashBoard() {
                 }
             } catch (e) {
                 lk.logErr(e)
-                lk.log(`Bing returned data: ${data}\n${error}\n${JSON.stringify(_response)}`)
+                lk.log(`bing返回数据：${data}\n${error}\n${JSON.stringify(_response)}`)
                 lk.execFail()
-                lk.appendNotifyInfo(`❌Error in ${t}, please try again later, or the cookie has expired, please recapture`)
+                lk.appendNotifyInfo(`❌${t}错误，请稍后再试，或者cookie过期，请重新抓取`)
                 resolve({})
             }
         })
