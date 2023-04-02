@@ -135,7 +135,7 @@ function getCookie() {
                 lk.setVal(bingPointCookieKey, bingHeader)
                 lk.setVal(bingSearchCookieKey, bingHeader)
                 lk.setVal(bingSearchCookieMobileKey, bingHeader)
-                lk.appendNotifyInfo('🎉Successfully obtained cookie, you can close the corresponding script')
+                // lk.appendNotifyInfo('🎉Successfully obtained cookie, you can close the corresponding script')
             }
         } catch (e) {
             lk.execFail()
