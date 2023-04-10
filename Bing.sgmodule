@@ -6,4 +6,4 @@ BingPointsCookie = requires-body=0,type=http-request,pattern=https:\/\/rewards\.
 BingPoints = type=cron,cronexp="10 */3 * * *",wake-system=1,timeout=180,script-path=https://raw.githubusercontent.com/LienCF/surge_modules/master/Bing.js
 
 [MITM]
-hostname = %APPEND% *.bing.com
+hostname = %APPEND% rewards.bing.com
