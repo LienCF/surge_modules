@@ -34,7 +34,7 @@ function ControlDPreAuth(retry) {
 function ControlDLogin(token) {
     return $.http.post({
             url: 'https://api.controld.com/users/login',
-            body: `{\"email\":\"chohfeng.lien@xamide.com\",\"password\":\"roum6phaw-krax-GEAW\",\"token\":\"${token}\"}`
+            body: `{\"email\":\"chihfeng.lien@xamide.com\",\"password\":\"roum6phaw-krax-GEAW\",\"token\":\"${token}\"}`
         })
         .then(async (resp) => {
             const body = JSON.parse(resp.body);
