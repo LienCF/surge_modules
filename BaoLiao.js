@@ -134,9 +134,12 @@ async function getDailyMissionList(token) {
 // Function to process missions
 async function processMissions(token, missions) {
   const today = new Date().toDateString();
+  const now = new Date();
+  const taipeiTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Taipei' }));
+  const hour = taipeiTime.getHours();
   
   const missionPromises = missions.map(async mission => {
-    const missionKey = `mission_${mission.id}_lastReceived`;
+    const missionKey = `baoliao_mission_${mission.id}_lastReceived`;
     const lastReceived = $persistentStore.read(missionKey);
     $.log(`Mission ${mission.id} last received: ${lastReceived}`);
     
@@ -145,6 +148,10 @@ async function processMissions(token, missions) {
       switch (mission.id) {
         case 3: // "按爆" mission
         case 4: // "開寶箱" mission
+          if (hour < 7) {
+            $.log(`Skipping "開寶箱" mission as it's before 7 AM in Taipei.`);
+            break;
+          }
         case 8: // "單篇文累積爆" mission
           result = await receiveMissionItem(token, mission.id);
           $.log(`Received mission item for mission ID ${mission.id}. Result: ${JSON.stringify(result)}`);
@@ -204,11 +211,14 @@ async function main() {
     }
 
     const now = new Date();
-    const hour = now.getHours();
-    const minute = now.getMinutes();
+    const taipeiTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Taipei' }));
+    const hour = taipeiTime.getHours();
+    const lastPostDate = $.getdata('baoliao_lastPostDate');
+    const today = taipeiTime.toDateString();
 
-    if (hour === 6 && minute >= 0 && minute <= 9) {
+    if (hour >= 6 && lastPostDate !== today) {
       await createDailyPost(token);
+      $.setdata(today, 'baoliao_lastPostDate');
     }
   } catch (error) {
     $.log(`Error occurred: ${error.message}`);
