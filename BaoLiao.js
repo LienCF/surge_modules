@@ -213,12 +213,12 @@ async function main() {
     const now = new Date();
     const taipeiTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Taipei' }));
     const hour = taipeiTime.getHours();
-    const lastPostDate = $.getdata('baoliao_lastPostDate');
+    const lastPostDate = $persistentStore.read('baoliao_lastPostDate');
     const today = taipeiTime.toDateString();
 
     if (hour >= 6 && lastPostDate !== today) {
       await createDailyPost(token);
-      $.setdata(today, 'baoliao_lastPostDate');
+      $persistentStore.write(today, 'baoliao_lastPostDate');
     }
   } catch (error) {
     $.log(`Error occurred: ${error.message}`);
