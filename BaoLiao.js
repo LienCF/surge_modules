@@ -137,12 +137,12 @@ async function processMissions(token, missions) {
   const now = new Date();
   const taipeiTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Taipei' }));
   const hour = taipeiTime.getHours();
-  
+
   const missionPromises = missions.map(async mission => {
     const missionKey = `baoliao_mission_${mission.id}_lastReceived`;
     const lastReceived = $persistentStore.read(missionKey);
     $.log(`Mission ${mission.id} last received: ${lastReceived}`);
-    
+
     if (mission.done === mission.goals && lastReceived !== today) {
       let result;
       switch (mission.id) {
@@ -155,7 +155,9 @@ async function processMissions(token, missions) {
         case 8: // "單篇文累積爆" mission
           result = await receiveMissionItem(token, mission.id);
           $.log(`Received mission item for mission ID ${mission.id}. Result: ${JSON.stringify(result)}`);
-          $persistentStore.write(today, missionKey);
+          if (result.code === 200) {
+            $persistentStore.write(today, missionKey);
+          }
           break;
         default:
           $.log(`No specific action defined for mission ID ${mission.id}`);
@@ -195,7 +197,7 @@ async function main() {
   try {
     const token = await getToken();
     const status = await getTreasureStatus(token);
-    
+
     if (status.remain_count > 0 && status.remain_time === 0) {
       const result = await openTreasureBox(token);
       $.log(`Treasure box opened successfully. Result: ${JSON.stringify(result)}`);
