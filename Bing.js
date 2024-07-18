@@ -446,8 +446,8 @@ function searchPc() {
                 h["sec-fetch-mode"] = "navigate"
                 h["sec-fetch-user"] = "?1"
                 h["sec-fetch-dest"] = "document"
-                h["sec-fetch-dest"] = "document"
-                h["sec-ch-ua-full-version-list"] = "Not A(Brand;v=24.0.0.0, Chromium;v=110.0.5481.177"
+                h["sec-ch-ua-full-version"] = '"126.0.6478.127"'
+                h["sec-ch-ua-full-version-list"] = '"Not/A)Brand";v="8.0.0.0", "Chromium";v="126.0.6478.127"'
                 h["accept-encoding"] = "UTF-8"
                 h["Content-Encoding"] = "UTF-8"
                 h["cookie"] = bingSearchCookie

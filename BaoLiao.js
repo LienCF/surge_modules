@@ -148,8 +148,8 @@ async function processMissions(token, missions) {
       switch (mission.id) {
         case 3: // "按爆" mission
         case 4: // "開寶箱" mission
-          if (hour < 7) {
-            $.log(`Skipping "開寶箱" mission as it's before 7 AM in Taipei.`);
+          if (hour < 2) {
+            $.log(`Skipping "開寶箱" mission as it's before 2 AM in Taipei.`);
             break;
           }
         case 8: // "單篇文累積爆" mission
