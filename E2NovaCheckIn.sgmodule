@@ -1,0 +1,6 @@
+#!name=E2NovaCheckIn
+#!desc=E2NovaCheckIn
+
+[Script]
+E2NovaCheckIn = type=cron,cronexp="57 7 * * mon,tue,wed,thu,fri",wake-system=1,timeout=180,script-path=https://raw.githubusercontent.com/LienCF/surge_modules/master/E2NovaCheckIn.js
+E2NovaCheckOut = type=cron,cronexp="28 17 * * mon,tue,wed,thu,fri",wake-system=1,timeout=180,script-path=https://raw.githubusercontent.com/LienCF/surge_modules/master/E2NovaCheckIn.js
