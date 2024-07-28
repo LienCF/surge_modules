@@ -3,6 +3,7 @@
 
 [Script]
 [蝦蝦果園]自動收成 = type=cron, cronexp="0 * * * *", script-path=https://kinta.ma/surge/scripts/shopee_auto_harvest.js, wake-system=1, timeout=5
+[蝦蝦果園]打卡任務 = type=cron, cronexp="10 0,4,8 * * *", script-path=https://kinta.ma/surge/scripts/shopee_water_checkin.js, wake-system=1, timeout=5
 [蝦蝦果園]購買免費道具 = type=cron, cronexp="19 0,4 * * *", script-path=https://kinta.ma/surge/scripts/shopee_water_buy_free_item.js, wake-system=1, timeout=5
 [蝦蝦果園]領取水滴任務獎勵 = type=cron, cronexp="50 23 * * *", script-path=https://kinta.ma/surge/scripts/shopee_water_mission_claim.js, wake-system=1, timeout=15
 [蝦蝦果園]道具商店水滴 = type=cron, cronexp="50 15,19,23 * * *", script-path=https://kinta.ma/surge/scripts/shopee_grocery_store_water.js, wake-system=1, timeout=5
