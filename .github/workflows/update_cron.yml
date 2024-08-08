@@ -1,0 +1,34 @@
+name: Update Cron Schedule
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Run daily at midnight UTC
+
+jobs:
+  update-cron:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Update cron schedule
+        run: |
+          # Generate two different random minutes (0-59)
+          MORNING_MINUTE=$((RANDOM % 60))
+          AFTERNOON_MINUTE=$((RANDOM % 60))
+
+          # Ensure the minutes are different
+          while [ $MORNING_MINUTE -eq $AFTERNOON_MINUTE ]; do
+            AFTERNOON_MINUTE=$((RANDOM % 60))
+          done
+
+          # Update the cron expressions in the file
+          sed -i "s/cronexp=\"[0-9]* 7/cronexp=\"$MORNING_MINUTE 7/" E2NovaCheckIn.sgmodule
+          sed -i "s/cronexp=\"[0-9]* 17/cronexp=\"$AFTERNOON_MINUTE 17/" E2NovaCheckIn.sgmodule
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name 'GitHub Action'
+          git config --global user.email 'action@github.com'
+          git add E2NovaCheckIn.sgmodule
+          git commit -m "Update cron schedule" || exit 0
+          git push
