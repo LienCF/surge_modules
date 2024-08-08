@@ -1,17 +1,13 @@
 // E2NovaCheckIn.js
-const URL_CHECKIN = "https://www.femascloud.com/e2nova/users/clock_listing";
+const URL_CHECKIN = "https://femashr-app-api.femascloud.com/e2nova/fsapi/V3/punch_card.json";
 const URL_CHECK_EVENT = "https://femashr-app-api.femascloud.com/e2nova/fsapi/V3/calendar.json";
 const METHOD = "POST";
 
 function generateRandomString() {
-    return Math.random().toString(36).substring(2, 15);
+    return Math.random().toString(36).substring(2, 25);
 }
 
-function getCurrentTimePlus30Mins() {
-    return Math.floor(Date.now() / 1000) + (30 * 60);
-}
-
-function getHeaders(randomString, currentTimePlus30Mins) {
+function getHeaders(randomString) {
     return {
         ":authority": "femashr-app-api.femascloud.com",
         "content-type": "application/json",
@@ -26,8 +22,26 @@ function getHeaders(randomString, currentTimePlus30Mins) {
     };
 }
 
-const CHECKIN_BODY = "_method=POST&data%5BClockRecord%5D%5Buser_id%5D=4&data%5BAttRecord%5D%5Buser_id%5D=4&data%5BClockRecord%5D%5Bshift_id%5D=9&data%5BClockRecord%5D%5Bperiod%5D=1&data%5BClockRecord%5D%5Bclock_type%5D=S&data%5BClockRecord%5D%5Blatitude%5D=&data%5BClockRecord%5D%5Blongitude%5D=";
-const CHECKOUT_BODY = "_method=POST&data%5BClockRecord%5D%5Buser_id%5D=4&data%5BAttRecord%5D%5Buser_id%5D=4&data%5BClockRecord%5D%5Bshift_id%5D=9&data%5BClockRecord%5D%5Bperiod%5D=1&data%5BClockRecord%5D%5Bclock_type%5D=E&data%5BClockRecord%5D%5Blatitude%5D=&data%5BClockRecord%5D%5Blongitude%5D=";
+function getCheckInBody() {
+    return JSON.stringify({
+        beaconHwid: "",
+        longitude: "",
+        latitude: "",
+        clockTime: `${(Date.now() / 1000).toFixed(6)}`,
+        clockData: "9,1,S"
+    });
+}
+
+function getCheckOutBody() {
+    return JSON.stringify({
+        beaconHwid: "",
+        longitude: "",
+        latitude: "",
+        clockTime: `${(Date.now() / 1000).toFixed(6)}`,
+        clockData: "9,1,E"
+    });
+}
+
 const CHECK_EVENT_BODY = '{"eventIsNotOver":true,"type":"user"}';
 
 function getCurrentTaipeiHour() {
@@ -36,9 +50,9 @@ function getCurrentTaipeiHour() {
 
 function getBodyBasedOnTime(hour) {
     if (hour > 7 && hour < 8) {
-        return CHECKIN_BODY;
+        return getCheckInBody();
     } else if (hour > 17 && hour < 18) {
-        return CHECKOUT_BODY;
+        return getCheckOutBody();
     } else {
         return null;
     }
@@ -108,10 +122,9 @@ function checkEvent(headers, callback) {
 
 function main() {
     const randomString = generateRandomString();
-    const currentTimePlus30Mins = getCurrentTimePlus30Mins();
-    console.log(`Random String: ${randomString}, Time Plus 30 Mins: ${currentTimePlus30Mins}`);
+    console.log(`Random String: ${randomString}`);
     
-    const headers = getHeaders(randomString, currentTimePlus30Mins);
+    const headers = getHeaders(randomString);
     console.log(`Headers: ${JSON.stringify(headers)}`);
 
     const taipeiHour = getCurrentTaipeiHour();
