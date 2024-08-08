@@ -5,7 +5,7 @@ function getToken() {
         
         if (authorization) {
             $persistentStore.write(authorization, 'e2nova_token');
-            $notification.post('E2Nova Token', 'Token successfully saved', authorization);
+//            $notification.post('E2Nova Token', 'Token successfully saved', authorization);
         } else {
             $notification.post('E2Nova Token', 'Failed to save token', 'Authorization header not found');
         }
