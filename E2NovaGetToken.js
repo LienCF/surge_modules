@@ -1,5 +1,3 @@
-const $ = new Env('E2Nova Token');
-
 function getToken() {
     if ($request.method === 'POST') {
         const headers = $request.headers;
