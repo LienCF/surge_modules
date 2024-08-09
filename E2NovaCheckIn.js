@@ -49,9 +49,9 @@ function getCurrentTaipeiHour() {
 }
 
 function getBodyBasedOnTime(hour) {
-    if (hour > 7 && hour < 8) {
+    if (hour > 6 && hour < 8) {
         return getCheckInBody();
-    } else if (hour > 17 && hour < 18) {
+    } else if (hour > 16 && hour < 18) {
         return getCheckOutBody();
     } else {
         return null;
