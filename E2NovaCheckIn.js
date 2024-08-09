@@ -25,8 +25,8 @@ function getHeaders(randomString) {
 function getCheckInBody() {
     return JSON.stringify({
         beaconHwid: "",
-        longitude: "121.56947",
-        latitude: "25.08182",
+        longitude: "121.56953",
+        latitude: "25.08180",
         clockTime: `${(Date.now() / 1000).toFixed(6)}`,
         clockData: "9,1,S"
     });
@@ -35,8 +35,8 @@ function getCheckInBody() {
 function getCheckOutBody() {
     return JSON.stringify({
         beaconHwid: "",
-        longitude: "121.56947",
-        latitude: "25.08182",
+        longitude: "121.56953",
+        latitude: "25.08180",
         clockTime: `${(Date.now() / 1000).toFixed(6)}`,
         clockData: "9,1,E"
     });
