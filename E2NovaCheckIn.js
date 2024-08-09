@@ -64,6 +64,7 @@ function handleResponse(error, response, data) {
         $done({});
     } else {
         console.log(`Response: ${JSON.stringify(data)}`);
+        $notification.post('E2Nova 簽到', '打卡完成', '${JSON.stringify(data)}');
         $done({});
     }
 }
