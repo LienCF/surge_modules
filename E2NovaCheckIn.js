@@ -60,7 +60,7 @@ function getBodyBasedOnTime(hour) {
 
 function handleResponse(error, response, data) {
     if (error) {
-        console.log('Error:', error);
+        console.log(`Error: ${error}`);
         $done({});
     } else {
         console.log(`Response: ${JSON.stringify(data)}`);
@@ -76,10 +76,10 @@ function checkEvent(headers, callback) {
         timeout: 50
     }, function(error, response, eventData) {
         if (error) {
-            console.log('Error checking event:', error);
+            console.log(`Error checking event: ${error}`);
             callback(true);
         } else {
-            console.log('Event data:', eventData);
+            console.log(`vent data: ${JSON.stringify(eventData)}`);
             const parsedEventData = JSON.parse(eventData);
             const todayDate = new Date().toISOString().split('T')[0];
             const todayInfo = parsedEventData.response.datas[todayDate];
@@ -131,7 +131,7 @@ function main() {
     console.log(`Current Taipei hour: ${taipeiHour}`);
     
     const bodyToUse = getBodyBasedOnTime(taipeiHour);
-
+    console.log(`bodyToUse: ${bodyToUse}`);
     checkEvent(headers, function(skip) {
         if (skip) {
             $done({});
