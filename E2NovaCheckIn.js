@@ -40,21 +40,29 @@ function getCheckBody(isCheckIn) {
 
 const CHECK_EVENT_BODY = '{"eventIsNotOver":true,"type":"user"}';
 
-function getCurrentTaipeiHour() {
-    const hour = new Date().toLocaleString("en-US", { timeZone: "Asia/Taipei", hour: 'numeric', hour12: false });
-    console.log(`Current Taipei hour: ${hour}`);
-    return parseInt(hour);
+function getCurrentTaipeiTime() {
+    const taipeiTime = new Date().toLocaleString("en-US", { timeZone: "Asia/Taipei" });
+    const taipeiDate = new Date(taipeiTime);
+    console.log(`Current Taipei time: ${taipeiDate.toISOString()}`);
+    return taipeiDate;
 }
 
-function getBodyBasedOnTime(hour) {
-    if (hour > 6 && hour < 8) {
+function isExecutionTime(taipeiDate) {
+    const hour = taipeiDate.getHours();
+    const minute = taipeiDate.getMinutes();
+    return (hour === 7 && minute === 0) || (hour === 17 && minute === 0);
+}
+
+function getBodyBasedOnTime(taipeiDate) {
+    const hour = taipeiDate.getHours();
+    if (hour === 7) {
         console.log('Time for check-in');
         return getCheckBody(true);
-    } else if (hour > 16 && hour < 18) {
+    } else if (hour === 17) {
         console.log('Time for check-out');
         return getCheckBody(false);
     } else {
-        console.log('Not within check-in or check-out time range');
+        console.log('Not within check-in or check-out time');
         return null;
     }
 }
@@ -84,7 +92,7 @@ function checkEvent(headers) {
             } else {
                 console.log(`Event data received: ${eventData}`);
                 const parsedEventData = JSON.parse(eventData);
-                const todayDate = new Date().toISOString().split('T')[0];
+                const todayDate = new Date().toLocaleString("en-US", { timeZone: "Asia/Taipei" }).split(',')[0];
                 console.log(`Checking events for date: ${todayDate}`);
                 const todayInfo = parsedEventData.response.datas[todayDate];
 
@@ -123,12 +131,19 @@ function checkEvent(headers) {
 
 async function main() {
     console.log('Starting main function...');
+    const taipeiDate = getCurrentTaipeiTime();
+
+    if (!isExecutionTime(taipeiDate)) {
+        console.log('Not the designated execution time (7 AM or 5 PM Taipei time). Exiting.');
+        $done({});
+        return;
+    }
+
     const randomString = generateRandomString();
     const headers = getHeaders(randomString);
     console.log(`Headers prepared: ${JSON.stringify(headers)}`);
 
-    const taipeiHour = getCurrentTaipeiHour();
-    const bodyToUse = getBodyBasedOnTime(taipeiHour);
+    const bodyToUse = getBodyBasedOnTime(taipeiDate);
 
     try {
         const skip = await checkEvent(headers);
@@ -139,7 +154,7 @@ async function main() {
             console.log('Proceeding with check-in/out');
             $httpClient.post({ url: URL_CHECKIN, headers: headers, body: bodyToUse, timeout: 50 }, handleResponse);
         } else {
-            console.log('Not in the check-in/out time, skipping check-in/out');
+            console.log('Unexpected state: bodyToUse is null at execution time');
             $done({});
         }
     } catch (error) {
