@@ -14,20 +14,12 @@ jobs:
 
       - name: Update cron schedule
         run: |
-          # Generate two different random minutes (0-59)
-          MORNING_MINUTE=$((RANDOM % 60))
-          AFTERNOON_MINUTE=$((RANDOM % 60))
+          # Generate a random minute (0-59)
+          RANDOM_MINUTE=$((RANDOM % 60))
 
-          # Ensure the minutes are different
-          while [ $MORNING_MINUTE -eq $AFTERNOON_MINUTE ]; do
-            AFTERNOON_MINUTE=$((RANDOM % 60))
-          done
-
-          # Update the cron expressions in the E2NovaCheckIn.sgmodule file
-          # Replace the existing minute value for the 7 AM (morning) check-in
-          sed -i "s/cronexp=\"[0-9]* 7/cronexp=\"$MORNING_MINUTE 7/" E2NovaCheckIn.sgmodule
-          # Replace the existing minute value for the 5 PM (afternoon) check-out
-          sed -i "s/cronexp=\"[0-9]* 17/cronexp=\"$AFTERNOON_MINUTE 17/" E2NovaCheckIn.sgmodule
+          # Update the cron expression in the E2NovaCheckIn.sgmodule file
+          # Replace the existing minute value for the hourly check
+          sed -i "s/cronexp=\"[0-9]* \*/cronexp=\"$RANDOM_MINUTE */" E2NovaCheckIn.sgmodule
 
       - name: Commit and push changes
         run: |
