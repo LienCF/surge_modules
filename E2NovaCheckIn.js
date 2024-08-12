@@ -50,7 +50,10 @@ function getCurrentTaipeiTime() {
 function isExecutionTime(taipeiDate) {
     const hour = taipeiDate.getHours();
     const minute = taipeiDate.getMinutes();
-    return (hour === 7) || (hour === 17);
+    console.log(`Current hour: ${hour}, minute: ${minute}`);
+    const isExecutionHour = (hour === 7) || (hour === 17);
+    console.log(`Is execution hour: ${isExecutionHour}`);
+    return isExecutionHour;
 }
 
 function getBodyBasedOnTime(taipeiDate) {
