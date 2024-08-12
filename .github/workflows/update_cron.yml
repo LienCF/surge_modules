@@ -16,22 +16,26 @@ jobs:
         run: |
           # Generate a random minute (0-59)
           RANDOM_MINUTE=$((RANDOM % 60))
+          echo "Generated random minute: $RANDOM_MINUTE"
 
           # Update the cron expression in the E2NovaCheckIn.sgmodule file
           # Replace the existing minute value for the hourly check
           sed -i "s/cronexp=\"[0-9]* \*/cronexp=\"$RANDOM_MINUTE */" E2NovaCheckIn.sgmodule
+          echo "Updated cron expression in E2NovaCheckIn.sgmodule"
 
       - name: Commit and push changes
         run: |
           # Configure Git with GitHub Action bot details
           git config --global user.name 'GitHub Action'
           git config --global user.email 'action@github.com'
+          echo "Configured Git with GitHub Action bot details"
           
           # Stage the modified E2NovaCheckIn.sgmodule file
           git add E2NovaCheckIn.sgmodule
+          echo "Staged E2NovaCheckIn.sgmodule"
           
           # Commit the changes, exiting successfully if no changes to commit
-          git commit -m "Update cron schedule" || exit 0
+          git commit -m "Update cron schedule" || echo "No changes to commit"
           
           # Push the changes to the repository
-          git push
+          git push && echo "Changes pushed successfully" || echo "Failed to push changes"
