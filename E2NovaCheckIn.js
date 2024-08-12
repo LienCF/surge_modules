@@ -95,7 +95,7 @@ function checkEvent(headers) {
             } else {
                 console.log(`Event data received: ${eventData}`);
                 const parsedEventData = JSON.parse(eventData);
-                const todayDate = new Date().toLocaleString("en-US", { timeZone: "Asia/Taipei" }).split(',')[0];
+                const todayDate = new Date().toLocaleString("en-US", { timeZone: "Asia/Taipei", year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/(\d+)\/(\d+)\/(\d+)/, '$3-$1-$2');
                 console.log(`Checking events for date: ${todayDate}`);
                 const todayInfo = parsedEventData.response.datas[todayDate];
 
