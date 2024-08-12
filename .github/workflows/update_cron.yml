@@ -2,13 +2,14 @@ name: Update Cron Schedule
 
 on:
   schedule:
-    - cron: '0 10 * * *' # Run daily at midnight UTC
+    - cron: '0 18 * * *' # Run daily at 6:00 PM Taipei time (UTC+8)
   workflow_dispatch:  # Enable manual trigger
 
 jobs:
   update-cron:
     runs-on: ubuntu-latest
     steps:
+      # Check out the repository code
       - uses: actions/checkout@v2
 
       - name: Update cron schedule
@@ -22,14 +23,23 @@ jobs:
             AFTERNOON_MINUTE=$((RANDOM % 60))
           done
 
-          # Update the cron expressions in the file
+          # Update the cron expressions in the E2NovaCheckIn.sgmodule file
+          # Replace the existing minute value for the 7 AM (morning) check-in
           sed -i "s/cronexp=\"[0-9]* 7/cronexp=\"$MORNING_MINUTE 7/" E2NovaCheckIn.sgmodule
+          # Replace the existing minute value for the 5 PM (afternoon) check-out
           sed -i "s/cronexp=\"[0-9]* 17/cronexp=\"$AFTERNOON_MINUTE 17/" E2NovaCheckIn.sgmodule
 
       - name: Commit and push changes
         run: |
+          # Configure Git with GitHub Action bot details
           git config --global user.name 'GitHub Action'
           git config --global user.email 'action@github.com'
+          
+          # Stage the modified E2NovaCheckIn.sgmodule file
           git add E2NovaCheckIn.sgmodule
+          
+          # Commit the changes, exiting successfully if no changes to commit
           git commit -m "Update cron schedule" || exit 0
+          
+          # Push the changes to the repository
           git push
