@@ -43,14 +43,14 @@ const CHECK_EVENT_BODY = '{"eventIsNotOver":true,"type":"user"}';
 function getCurrentTaipeiTime() {
     const taipeiTime = new Date().toLocaleString("en-US", { timeZone: "Asia/Taipei" });
     const taipeiDate = new Date(taipeiTime);
-    console.log(`Current Taipei time: ${taipeiDate.toISOString()}`);
+    console.log(`Current Taipei time: ${taipeiDate.toLocaleString("en-US", { timeZone: "Asia/Taipei" })}`);
     return taipeiDate;
 }
 
 function isExecutionTime(taipeiDate) {
     const hour = taipeiDate.getHours();
     const minute = taipeiDate.getMinutes();
-    return (hour === 7 && minute === 0) || (hour === 17 && minute === 0);
+    return (hour === 7) || (hour === 17);
 }
 
 function getBodyBasedOnTime(taipeiDate) {
