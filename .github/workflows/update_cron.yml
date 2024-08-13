@@ -2,7 +2,7 @@ name: Update Cron Schedule
 
 on:
   schedule:
-    - cron: '0 0 * * *' # Run daily at 12:00 AM UTC (8:00 AM Taipei time, UTC+8)
+    - cron: '0 0,10 * * *' # Run daily at 12:00 AM UTC (8:00 AM Taipei time, UTC+8) and 10:00 PM UTC (6:00 PM Taipei time, UTC+8)
   workflow_dispatch:  # Enable manual trigger
 
 jobs:
