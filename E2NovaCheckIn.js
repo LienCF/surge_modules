@@ -41,8 +41,7 @@ function getCheckBody(isCheckIn) {
 const CHECK_EVENT_BODY = '{"eventIsNotOver":true,"type":"user"}';
 
 function getCurrentTaipeiTime() {
-    const taipeiTime = new Date().toLocaleString("en-US", { timeZone: "Asia/Taipei" });
-    const taipeiDate = new Date(taipeiTime);
+    const taipeiDate = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Taipei" }));
     console.log(`Current Taipei time: ${taipeiDate.toLocaleString("en-US", { timeZone: "Asia/Taipei" })}`);
     return taipeiDate;
 }
@@ -51,7 +50,7 @@ function isExecutionTime(taipeiDate) {
     const hour = taipeiDate.getHours();
     const minute = taipeiDate.getMinutes();
     console.log(`Current hour: ${hour}, minute: ${minute}`);
-    const isExecutionHour = (hour === 7) || (hour === 17);
+    const isExecutionHour = hour === 7 || hour === 17;
     console.log(`Is execution hour: ${isExecutionHour}`);
     return isExecutionHour;
 }
@@ -102,22 +101,19 @@ function checkEvent(headers) {
                 if (todayInfo && !todayInfo.is_holiday) {
                     if (todayInfo.has_events) {
                         for (const event of todayInfo.events) {
-                            const startTime = new Date(event.start_time);
-                            const endTime = new Date(event.end_time);
-                            const durationHours = (endTime - startTime) / (1000 * 60 * 60);
-                            const isWorkFromHome = event.event && event.event.toLowerCase().includes("work from home");
-                            const isBusinessLeave = event.event && event.event.toLowerCase().includes("business leave");
+                            const durationHours = (new Date(event.end_time) - new Date(event.start_time)) / (1000 * 60 * 60);
+                            const eventLowerCase = event.event.toLowerCase();
+                            const isWorkFromHome = eventLowerCase.includes("work from home");
+                            const isBusinessLeave = eventLowerCase.includes("business leave");
 
                             console.log(`Event: ${event.event}, Duration: ${durationHours} hours`);
 
                             if (isWorkFromHome || isBusinessLeave) {
                                 console.log(`Found a ${isWorkFromHome ? 'Work From Home' : 'Business Leave'} event, proceeding with check-in/out`);
-                                resolve(false);
-                                return;
+                                return resolve(false);
                             } else if (durationHours > 9) {
                                 console.log('Found an event longer than 9 hours and not Work From Home or Business Leave, skipping check-in/out');
-                                resolve(true);
-                                return;
+                                return resolve(true);
                             }
                         }
                     }
@@ -138,8 +134,7 @@ async function main() {
 
     if (!isExecutionTime(taipeiDate)) {
         console.log('Not the designated execution time (7 AM or 5 PM Taipei time). Exiting.');
-        $done({});
-        return;
+        return $done({});
     }
 
     const randomString = generateRandomString();
@@ -152,18 +147,17 @@ async function main() {
         const skip = await checkEvent(headers);
         if (skip) {
             console.log('Skipping check-in/out based on event check');
-            $done({});
         } else if (bodyToUse !== null) {
             console.log('Proceeding with check-in/out');
             $httpClient.post({ url: URL_CHECKIN, headers: headers, body: bodyToUse, timeout: 50 }, handleResponse);
+            return; // Don't call $done() here as it's called in handleResponse
         } else {
             console.log('Unexpected state: bodyToUse is null at execution time');
-            $done({});
         }
     } catch (error) {
         console.error(`Error in main function: ${error}`);
-        $done({});
     }
+    $done({});
 }
 
 main();
