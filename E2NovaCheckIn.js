@@ -111,8 +111,8 @@ function checkEvent(headers) {
                             if (isWorkFromHome || isBusinessLeave) {
                                 console.log(`Found a ${isWorkFromHome ? 'Work From Home' : 'Business Leave'} event, proceeding with check-in/out`);
                                 return resolve(false);
-                            } else if (durationHours > 9) {
-                                console.log('Found an event longer than 9 hours and not Work From Home or Business Leave, skipping check-in/out');
+                            } else if (durationHours > 8) {
+                                console.log('Found an event longer than 8 hours and not Work From Home or Business Leave, skipping check-in/out');
                                 return resolve(true);
                             }
                         }
