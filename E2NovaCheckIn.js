@@ -130,58 +130,68 @@ function checkEvent(headers) {
 
 async function main() {
     console.log('Starting main function...');
-    const taipeiDate = getCurrentTaipeiTime();
-
-    // Disable the module
-    console.log('Disabling E2NovaCheckIn module...');
-    $httpClient.post({
-        url: 'http://localhost:6171/v1/modules',
-        headers: {
-            'X-Key': 'f124091894',
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ "E2NovaCheckIn": false }),
-        timeout: 5000
-    }, function (error, response, data) {
-        if (error) {
-            console.error(`Error disabling module: ${error}`);
-        } else {
-            console.log('Module disabled successfully');
-
-            // Re-enable the module after a short delay
-            setTimeout(function () {
-                console.log('Re-enabling E2NovaCheckIn module...');
-                $httpClient.post({
-                    url: 'http://localhost:6171/v1/modules',
-                    headers: {
-                        'X-Key': 'f124091894',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ "E2NovaCheckIn": true }),
-                    timeout: 5000
-                }, function (error, response, data) {
-                    if (error) {
-                        console.error(`Error re-enabling module: ${error}`);
-                    } else {
-                        console.log('Module re-enabled successfully');
-                    }
-                });
-            }, 2000); // 2 second delay before re-enabling
-        }
-    });
-
-    if (!isExecutionTime(taipeiDate)) {
-        console.log('Not the designated execution time (7 AM or 5 PM Taipei time). Exiting.');
-        return $done({});
-    }
-
-    const randomString = generateRandomString();
-    const headers = getHeaders(randomString);
-    console.log(`Headers prepared: ${JSON.stringify(headers)}`);
-
-    const bodyToUse = getBodyBasedOnTime(taipeiDate);
 
     try {
+        // Disable the module
+        console.log('Disabling E2NovaCheckIn module...');
+        await new Promise((resolve, reject) => {
+            $httpClient.post({
+                url: 'http://localhost:6171/v1/modules',
+                headers: {
+                    'X-Key': 'f124091894',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ "E2NovaCheckIn": false }),
+                timeout: 5000
+            }, function (error, response, data) {
+                if (error) {
+                    console.error(`Error disabling module: ${error}`);
+                    reject(error);
+                } else {
+                    console.log('Module disabled successfully');
+                    resolve();
+                }
+            });
+        });
+
+        // Re-enable the module after a short delay
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+
+        console.log('Re-enabling E2NovaCheckIn module...');
+        await new Promise((resolve, reject) => {
+            $httpClient.post({
+                url: 'http://localhost:6171/v1/modules',
+                headers: {
+                    'X-Key': 'f124091894',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ "E2NovaCheckIn": true }),
+                timeout: 5000
+            }, function (error, response, data) {
+                if (error) {
+                    console.error(`Error re-enabling module: ${error}`);
+                    reject(error);
+                } else {
+                    console.log('Module re-enabled successfully');
+                    resolve();
+                }
+            });
+        });
+
+        // Continue with the rest of the logic
+        const taipeiDate = getCurrentTaipeiTime();
+
+        if (!isExecutionTime(taipeiDate)) {
+            console.log('Not the designated execution time (7 AM or 5 PM Taipei time). Exiting.');
+            return $done({});
+        }
+
+        const randomString = generateRandomString();
+        const headers = getHeaders(randomString);
+        console.log(`Headers prepared: ${JSON.stringify(headers)}`);
+
+        const bodyToUse = getBodyBasedOnTime(taipeiDate);
+
         const skip = await checkEvent(headers);
         if (skip) {
             console.log('Skipping check-in/out based on event check');
