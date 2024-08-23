@@ -131,53 +131,39 @@ function checkEvent(headers) {
 async function main() {
     console.log('Starting main function...');
 
+    console.log('Getting file list and folder path...');
+    $file.list('.').then(
+        (fileList) => {
+            $file.exists('.').then(
+                (exists) => {
+                    if (exists) {
+                        $file.absolutePath('.').then(
+                            (path) => {
+                                console.log(`Current folder path: ${path}`);
+                                console.log('Files in the current folder:');
+                                fileList.forEach((file) => {
+                                    console.log(file);
+                                });
+                            },
+                            (error) => {
+                                console.error(`Error getting absolute path: ${error}`);
+                            }
+                        );
+                    } else {
+                        console.error('Current folder does not exist');
+                    }
+                },
+                (error) => {
+                    console.error(`Error checking folder existence: ${error}`);
+                }
+            );
+        },
+        (error) => {
+            console.error(`Error listing files: ${error}`);
+        }
+    );
+
     try {
-        // Disable the module
-        console.log('Disabling E2NovaCheckIn module...');
-        await new Promise((resolve, reject) => {
-            $httpClient.post({
-                url: 'http://localhost:6171/v1/modules',
-                headers: {
-                    'X-Key': 'f124091894',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ "E2NovaCheckIn": false }),
-                timeout: 5000
-            }, function (error, response, data) {
-                if (error) {
-                    console.error(`Error disabling module: ${error}`);
-                    reject(error);
-                } else {
-                    console.log('Module disabled successfully');
-                    resolve();
-                }
-            });
-        });
-
-        // Re-enable the module after a short delay
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-
-        console.log('Re-enabling E2NovaCheckIn module...');
-        await new Promise((resolve, reject) => {
-            $httpClient.post({
-                url: 'http://localhost:6171/v1/modules',
-                headers: {
-                    'X-Key': 'f124091894',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ "E2NovaCheckIn": true }),
-                timeout: 5000
-            }, function (error, response, data) {
-                if (error) {
-                    console.error(`Error re-enabling module: ${error}`);
-                    reject(error);
-                } else {
-                    console.log('Module re-enabled successfully');
-                    resolve();
-                }
-            });
-        });
-
         // Continue with the rest of the logic
         const taipeiDate = getCurrentTaipeiTime();
 
