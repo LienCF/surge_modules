@@ -131,19 +131,6 @@ function checkEvent(headers) {
 async function main() {
     console.log('Starting main function...');
 
-    console.log('Getting file list of the current folder...');
-    $file.list('.').then(
-        (fileList) => {
-            console.log('Files in the current folder:');
-            fileList.forEach((file) => {
-                console.log(file);
-            });
-        },
-        (error) => {
-            console.error(`Error listing files: ${error}`);
-        }
-    );
-
     try {
         // Continue with the rest of the logic
         const taipeiDate = getCurrentTaipeiTime();
