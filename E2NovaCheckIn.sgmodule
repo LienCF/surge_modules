@@ -3,7 +3,7 @@
 #SUBSCRIBED https://raw.githubusercontent.com/LienCF/surge_modules/master/E2NovaCheckIn.sgmodule
 
 [Script]
-E2NovaCheck = type=cron,cronexp="51 * * * *",wake-system=1,timeout=180,script-path=https://raw.githubusercontent.com/LienCF/surge_modules/master/E2NovaCheckIn.js
+E2NovaCheck = type=cron,cronexp="15 * * * *",wake-system=1,timeout=180,script-path=https://raw.githubusercontent.com/LienCF/surge_modules/master/E2NovaCheckIn.js
 E2NovaGetToken = type=http-request,pattern=^https:\/\/femashr-app-api\.femascloud\.com\/e2nova\/fsapi\/V3\/sys\/task_counts\.json,script-path=https://raw.githubusercontent.com/LienCF/surge_modules/master/E2NovaGetToken.js
 
 [MITM]
