@@ -14,9 +14,22 @@ jobs:
 
       - name: Update cron schedule
         run: |
-          # Generate a random minute (0-59)
-          RANDOM_MINUTE=$((RANDOM % 60))
-          echo "Generated random minute: $RANDOM_MINUTE"
+          # Get current UTC hour
+          CURRENT_HOUR=$(date -u +"%H")
+          echo "Current UTC hour: $CURRENT_HOUR"
+          
+          # Set random minute range based on time
+          if [ "$CURRENT_HOUR" = "00" ]; then
+            # Morning execution (8:00 AM Taipei time / 00:00 UTC)
+            # Generate random minute between 31-59
+            RANDOM_MINUTE=$((31 + RANDOM % 29))
+            echo "Morning execution: Generated random minute: $RANDOM_MINUTE (range: 31-59)"
+          else
+            # Evening execution (6:00 PM Taipei time / 10:00 UTC)
+            # Generate random minute between 1-30
+            RANDOM_MINUTE=$((1 + RANDOM % 29))
+            echo "Evening execution: Generated random minute: $RANDOM_MINUTE (range: 1-30)"
+          fi
 
           # Update the cron expression in the E2NovaCheckIn.sgmodule file
           # Replace the existing minute value for the hourly check
