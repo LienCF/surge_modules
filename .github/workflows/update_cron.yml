@@ -20,21 +20,29 @@ jobs:
           echo "Current UTC hour: $CURRENT_HOUR_UTC"
           echo "Current Taipei hour: $TAIPEI_HOUR"
           
-          # Set random minute range based on Taipei time
+          # Set random minute based on Taipei time
           if [ "$TAIPEI_HOUR" -ge 8 ] && [ "$TAIPEI_HOUR" -lt 18 ]; then
-            # Between 8 AM and 6 PM Taipei time
-            # Generate random minute between 1-29
-            RANDOM_MINUTE=$((1 + RANDOM % 29))
-            echo "Taipei time 8 AM - 6 PM: Generated random minute: $RANDOM_MINUTE (range: 1-29)"
+            # Between 8 AM and 6 PM Taipei time (working hours)
+            # Get current minute value from module file
+            CURRENT_MINUTE=$(grep -oP 'cronexp="\K[0-9]+' E2NovaCheckIn.sgmodule)
+            echo "Current minute in E2NovaCheckIn.sgmodule: $CURRENT_MINUTE"
+            
+            # Generate a random number between 1-59, but make sure RANDOM_MINUTE - CURRENT_MINUTE < 30
+            MAX_ALLOWED=$((CURRENT_MINUTE + 29))
+            if [ $MAX_ALLOWED -gt 59 ]; then
+              MAX_ALLOWED=59
+            fi
+            
+            RANDOM_MINUTE=$((1 + RANDOM % MAX_ALLOWED))
+            echo "Taipei working hours (8AM-6PM): Generated random minute: $RANDOM_MINUTE (range: 1-$MAX_ALLOWED)"
           else
-            # Outside 8 AM - 6 PM Taipei time
-            # Generate random minute between 31-59
-            RANDOM_MINUTE=$((31 + RANDOM % 29))
-            echo "Taipei time night hours: Generated random minute: $RANDOM_MINUTE (range: 31-59)"
+            # Outside working hours (6PM - 8AM Taipei time)
+            # Generate any random minute between 1-59
+            RANDOM_MINUTE=$((1 + RANDOM % 59))
+            echo "Taipei non-working hours: Generated random minute: $RANDOM_MINUTE (range: 1-59)"
           fi
 
           # Update the cron expression in the E2NovaCheckIn.sgmodule file
-          # Replace the existing minute value for the hourly check
           sed -i "s/cronexp=\"[0-9]* \*/cronexp=\"$RANDOM_MINUTE */" E2NovaCheckIn.sgmodule
           echo "Updated cron expression in E2NovaCheckIn.sgmodule"
 
@@ -43,14 +51,8 @@ jobs:
           # Configure Git with GitHub Action bot details
           git config --global user.name 'GitHub Action'
           git config --global user.email 'action@github.com'
-          echo "Configured Git with GitHub Action bot details"
           
-          # Stage the modified E2NovaCheckIn.sgmodule file
+          # Stage, commit and push changes
           git add E2NovaCheckIn.sgmodule
-          echo "Staged E2NovaCheckIn.sgmodule"
-          
-          # Commit the changes, exiting successfully if no changes to commit
           git commit -m "Update cron schedule" || echo "No changes to commit"
-          
-          # Push the changes to the repository
-          git push && echo "Changes pushed successfully" || echo "Failed to push changes"
+          git push || echo "Failed to push changes"
