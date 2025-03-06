@@ -8,3 +8,5 @@ E2NovaGetToken = type=http-request,pattern=^https:\/\/femashr-app-api\.femasclou
 
 [MITM]
 hostname = %APPEND% femashr-app-api.femascloud.com
+
+#!interval=86400
