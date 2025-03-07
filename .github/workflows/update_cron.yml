@@ -2,7 +2,7 @@ name: Update Cron Schedule
 
 on:
   schedule:
-    - cron: '45 23 * * *' # UTC 23:45 (台北時間 7:45)
+    - cron: '35 23 * * *' # UTC 23:45 (台北時間 7:45)
   workflow_dispatch:  # 啟用手動觸發
 
 jobs:
@@ -144,7 +144,7 @@ jobs:
           # 更新 workflow 排程
           NEW_CRON="$WORKFLOW_MINUTE $WORKFLOW_HOUR * * *"
           echo "Updating workflow schedule to: $NEW_CRON (UTC time)"
-          sed -i "s/- cron: '[^']*'/- cron: '$NEW_CRON'/" .github/workflows/update_cron.yml
+          sed -i "s/- cron: '35 23 * * *']*'/- cron: '$NEW_CRON'/" .github/workflows/update_cron.yml
           
           # 顯示將要提交的檔案
           echo "--- Files to be committed ---"
