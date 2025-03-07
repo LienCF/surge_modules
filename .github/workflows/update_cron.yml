@@ -9,8 +9,11 @@ jobs:
   update-cron:
     runs-on: ubuntu-latest
     steps:
-      # Check out the repository code
+      # Check out the repository code with PAT token
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # 獲取完整的歷史記錄
+          token: ${{ secrets.WORKFLOW_PAT }}  # 使用個人訪問令牌
 
       - name: Update cron schedule
         run: |
@@ -22,10 +25,17 @@ jobs:
           echo "Current UTC time: $CURRENT_HOUR_UTC:$CURRENT_MINUTE_UTC"
           echo "Current Taipei time: $TAIPEI_HOUR:$TAIPEI_MINUTE"
           
+          # 記錄檔案路徑使用固定路徑
+          LAST_MORNING_FILE="data/.last_morning_minute"
+          
+          # 確保目錄存在
+          mkdir -p data
+          
           # 檢查是否有上次執行記錄
-          if [ -f ".last_morning_minute" ]; then
+          if [ -f "$LAST_MORNING_FILE" ]; then
             echo "Found previous execution record"
-            LAST_MORNING_MINUTE=$(cat .last_morning_minute)
+            LAST_MORNING_MINUTE=$(cat $LAST_MORNING_FILE)
+            echo "Last morning minute: $LAST_MORNING_MINUTE"
             
             # 計算當前時間在一天中的絕對分鐘值
             CURRENT_TAIPEI_MINUTES=$(( TAIPEI_HOUR * 60 + TAIPEI_MINUTE ))
@@ -86,7 +96,8 @@ jobs:
             RANDOM_MINUTE=$(( 30 + RANDOM % 30 ))
             
             # 保存上午執行分鐘數，以供下午計算使用
-            echo "$RANDOM_MINUTE" > .last_morning_minute
+            echo "$RANDOM_MINUTE" > $LAST_MORNING_FILE
+            echo "Saved morning minute: $RANDOM_MINUTE to $LAST_MORNING_FILE"
             
             echo "Generated morning execution time: $TARGET_HOUR:$RANDOM_MINUTE (Taipei time)"
             
@@ -94,7 +105,7 @@ jobs:
             UTC_TARGET_HOUR=$(( (TARGET_HOUR - 8 + 24) % 24 ))  # 台北 7 點對應 UTC 23 點
           else
             # 下午時段計算
-            MORNING_MINUTE=$(cat .last_morning_minute)
+            MORNING_MINUTE=$(cat $LAST_MORNING_FILE)
             
             # 基準時間：上午 7 點 + MORNING_MINUTE 分鐘
             MORNING_ABSOLUTE_MINUTES=$(( 7 * 60 + MORNING_MINUTE ))
@@ -134,6 +145,12 @@ jobs:
           NEW_CRON="$WORKFLOW_MINUTE $WORKFLOW_HOUR * * *"
           echo "Updating workflow schedule to: $NEW_CRON (UTC time)"
           sed -i "s/- cron: '[^']*'/- cron: '$NEW_CRON'/" .github/workflows/update_cron.yml
+          
+          # 顯示將要提交的檔案
+          echo "--- Files to be committed ---"
+          ls -la data/ || echo "Data directory not found"
+          cat $LAST_MORNING_FILE || echo "Last morning file not found"
+          echo "-----------------------------"
 
       - name: Commit and push changes
         run: |
@@ -141,7 +158,19 @@ jobs:
           git config --global user.name 'GitHub Action'
           git config --global user.email 'action@github.com'
           
-          # Stage, commit and push changes
-          git add E2NovaCheckIn.sgmodule .github/workflows/update_cron.yml .last_morning_minute
+          # 確保目錄存在並顯示狀態
+          mkdir -p data
+          git status
+          
+          # Stage, commit and push changes (明確列出所有需要提交的檔案)
+          git add E2NovaCheckIn.sgmodule .github/workflows/update_cron.yml data/
+          git status
+          
+          # 使用 -f 強制添加 .last_morning_minute 檔案，防止被 .gitignore 忽略
+          git add -f data/.last_morning_minute
+          git status
+          
           git commit -m "Update cron schedules for E2NovaCheckIn and workflow" || echo "No changes to commit"
-          git push || echo "Failed to push changes"
+          
+          # 使用 PAT 認證推送變更
+          git push https://${{ secrets.WORKFLOW_PAT }}@github.com/${{ github.repository }}.git
