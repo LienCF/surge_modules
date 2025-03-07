@@ -2,8 +2,8 @@ name: Update Cron Schedule
 
 on:
   schedule:
-    - cron: '0 0,10 * * *' # Run daily at 12:00 AM UTC (8:00 AM Taipei time, UTC+8) and 10:00 PM UTC (6:00 PM Taipei time, UTC+8)
-  workflow_dispatch:  # Enable manual trigger
+    - cron: '45 23 * * *' # UTC 23:45 (台北時間 7:45)
+  workflow_dispatch:  # 啟用手動觸發
 
 jobs:
   update-cron:
@@ -14,37 +14,126 @@ jobs:
 
       - name: Update cron schedule
         run: |
-          # Get current UTC hour and convert to Taipei time (UTC+8)
+          # 獲取當前 UTC 時間並轉換為台北時間
           CURRENT_HOUR_UTC=$(date -u +"%H")
+          CURRENT_MINUTE_UTC=$(date -u +"%M")
           TAIPEI_HOUR=$(( (CURRENT_HOUR_UTC + 8) % 24 ))
-          echo "Current UTC hour: $CURRENT_HOUR_UTC"
-          echo "Current Taipei hour: $TAIPEI_HOUR"
+          TAIPEI_MINUTE=$CURRENT_MINUTE_UTC
+          echo "Current UTC time: $CURRENT_HOUR_UTC:$CURRENT_MINUTE_UTC"
+          echo "Current Taipei time: $TAIPEI_HOUR:$TAIPEI_MINUTE"
           
-          # Set random minute based on Taipei time
-          if [ "$TAIPEI_HOUR" -ge 8 ] && [ "$TAIPEI_HOUR" -lt 18 ]; then
-            # Between 8 AM and 6 PM Taipei time (working hours)
-            # Get current minute value from module file
-            CURRENT_MINUTE=$(grep -oP 'cronexp="\K[0-9]+' E2NovaCheckIn.sgmodule)
-            echo "Current minute in E2NovaCheckIn.sgmodule: $CURRENT_MINUTE"
+          # 檢查是否有上次執行記錄
+          if [ -f ".last_morning_minute" ]; then
+            echo "Found previous execution record"
+            LAST_MORNING_MINUTE=$(cat .last_morning_minute)
             
-            # Generate a random number between 1-59, but make sure RANDOM_MINUTE - CURRENT_MINUTE < 30
-            MAX_ALLOWED=$((CURRENT_MINUTE + 29))
-            if [ $MAX_ALLOWED -gt 59 ]; then
-              MAX_ALLOWED=59
+            # 計算當前時間在一天中的絕對分鐘值
+            CURRENT_TAIPEI_MINUTES=$(( TAIPEI_HOUR * 60 + TAIPEI_MINUTE ))
+            
+            # 定義早上時段（7:30-8:00）的絕對分鐘值
+            MORNING_START=$(( 7 * 60 + 30 ))  # 7:30
+            MORNING_END=$(( 8 * 60 ))         # 8:00
+            
+            # 計算上午執行時間的絕對分鐘值
+            LAST_MORNING_ABSOLUTE_MINUTES=$(( 7 * 60 + LAST_MORNING_MINUTE ))
+            
+            # 計算下午時段的開始和結束時間（上午執行後 9.75-10.25 小時）
+            AFTERNOON_START=$(( LAST_MORNING_ABSOLUTE_MINUTES + 585 ))  # 9.75小時 = 585分鐘
+            AFTERNOON_END=$(( LAST_MORNING_ABSOLUTE_MINUTES + 615 ))    # 10.25小時 = 615分鐘
+            
+            # 轉換為小時和分鐘以便輸出
+            AFTERNOON_START_HOUR=$(( AFTERNOON_START / 60 % 24 ))
+            AFTERNOON_START_MINUTE=$(( AFTERNOON_START % 60 ))
+            AFTERNOON_END_HOUR=$(( AFTERNOON_END / 60 % 24 ))
+            AFTERNOON_END_MINUTE=$(( AFTERNOON_END % 60 ))
+            
+            echo "Afternoon time slot: $AFTERNOON_START_HOUR:$AFTERNOON_START_MINUTE - $AFTERNOON_END_HOUR:$AFTERNOON_END_MINUTE"
+            
+            # 決定下一個執行時段（上午或下午）
+            # 這裡我們採用簡單的交替執行方式
+            # 檢查當前時間在哪個時段內，或者已經過了哪個時段
+            if [ $CURRENT_TAIPEI_MINUTES -lt $MORNING_START ]; then
+              # 時間在上午時段之前，下次執行上午時段
+              echo "Current time is before morning slot. Next execution will be in the morning."
+              TARGET_PERIOD="MORNING"
+            elif [ $CURRENT_TAIPEI_MINUTES -ge $MORNING_END ] && [ $CURRENT_TAIPEI_MINUTES -lt $AFTERNOON_START ]; then
+              # 時間在上午時段之後、下午時段之前，下次執行下午時段
+              echo "Current time is after morning slot but before afternoon slot. Next execution will be in the afternoon."
+              TARGET_PERIOD="AFTERNOON"
+            elif [ $CURRENT_TAIPEI_MINUTES -ge $AFTERNOON_END ]; then
+              # 時間在下午時段之後，下次執行上午時段
+              echo "Current time is after afternoon slot. Next execution will be tomorrow morning."
+              TARGET_PERIOD="MORNING"
+            elif [ $CURRENT_TAIPEI_MINUTES -ge $MORNING_START ] && [ $CURRENT_TAIPEI_MINUTES -lt $MORNING_END ]; then
+              # 時間正好在上午時段內，下次執行下午時段
+              echo "Current time is within morning slot. Next execution will be in the afternoon."
+              TARGET_PERIOD="AFTERNOON"
+            else
+              # 時間正好在下午時段內，下次執行上午時段
+              echo "Current time is within afternoon slot. Next execution will be tomorrow morning."
+              TARGET_PERIOD="MORNING"
             fi
-            
-            RANDOM_MINUTE=$((1 + RANDOM % MAX_ALLOWED))
-            echo "Taipei working hours (8AM-6PM): Generated random minute: $RANDOM_MINUTE (range: 1-$MAX_ALLOWED)"
           else
-            # Outside working hours (6PM - 8AM Taipei time)
-            # Generate any random minute between 1-59
-            RANDOM_MINUTE=$((1 + RANDOM % 59))
-            echo "Taipei non-working hours: Generated random minute: $RANDOM_MINUTE (range: 1-59)"
+            # 第一次執行，一律設定為上午時段
+            echo "First execution detected. Setting next execution to morning slot."
+            TARGET_PERIOD="MORNING"
           fi
-
-          # Update the cron expression in the E2NovaCheckIn.sgmodule file
+          
+          # 根據目標時段設定執行時間
+          if [ "$TARGET_PERIOD" = "MORNING" ]; then
+            # 上午時段：生成 7:30-8:00 之間的隨機分鐘數
+            TARGET_HOUR=7
+            RANDOM_MINUTE=$(( 30 + RANDOM % 30 ))
+            
+            # 保存上午執行分鐘數，以供下午計算使用
+            echo "$RANDOM_MINUTE" > .last_morning_minute
+            
+            echo "Generated morning execution time: $TARGET_HOUR:$RANDOM_MINUTE (Taipei time)"
+            
+            # 轉換為 UTC 時間 (台北時間 - 8 小時)
+            UTC_TARGET_HOUR=$(( (TARGET_HOUR - 8 + 24) % 24 ))  # 台北 7 點對應 UTC 23 點
+          else
+            # 下午時段計算
+            MORNING_MINUTE=$(cat .last_morning_minute)
+            
+            # 基準時間：上午 7 點 + MORNING_MINUTE 分鐘
+            MORNING_ABSOLUTE_MINUTES=$(( 7 * 60 + MORNING_MINUTE ))
+            
+            # 計算 9.75 小時後的時間 (9 小時 45 分鐘 = 585 分鐘)
+            BASE_MINUTES=$(( MORNING_ABSOLUTE_MINUTES + 585 ))
+            
+            # 隨機增加 0-30 分鐘（總共 9.75 到 10.25 小時）
+            RANDOM_ADDITIONAL_MINUTES=$(( RANDOM % 31 ))
+            TOTAL_MINUTES=$(( BASE_MINUTES + RANDOM_ADDITIONAL_MINUTES ))
+            
+            # 計算最終的小時和分鐘
+            TARGET_HOUR=$(( TOTAL_MINUTES / 60 % 24 ))
+            RANDOM_MINUTE=$(( TOTAL_MINUTES % 60 ))
+            
+            echo "Generated afternoon execution time: $TARGET_HOUR:$RANDOM_MINUTE (Taipei time)"
+            
+            # 轉換為 UTC 時間
+            UTC_TARGET_HOUR=$(( (TARGET_HOUR - 8 + 24) % 24 ))
+          fi
+          
+          # 更新模組排程
+          echo "Updating module schedule to run at $TARGET_HOUR:$RANDOM_MINUTE (Taipei time)"
           sed -i "s/cronexp=\"[0-9]* \*/cronexp=\"$RANDOM_MINUTE */" E2NovaCheckIn.sgmodule
-          echo "Updated cron expression in E2NovaCheckIn.sgmodule"
+          
+          # 計算 workflow 執行時間 (模組執行後 5 分鐘)
+          WORKFLOW_MINUTE=$(( (RANDOM_MINUTE + 5) % 60 ))
+          WORKFLOW_HOUR=$UTC_TARGET_HOUR
+          
+          # 處理分鐘數溢出情況
+          if [ $WORKFLOW_MINUTE -lt $RANDOM_MINUTE ]; then
+            # 跨小時，UTC 小時 +1
+            WORKFLOW_HOUR=$(( (UTC_TARGET_HOUR + 1) % 24 ))
+          fi
+          
+          # 更新 workflow 排程
+          NEW_CRON="$WORKFLOW_MINUTE $WORKFLOW_HOUR * * *"
+          echo "Updating workflow schedule to: $NEW_CRON (UTC time)"
+          sed -i "s/- cron: '[^']*'/- cron: '$NEW_CRON'/" .github/workflows/update_cron.yml
 
       - name: Commit and push changes
         run: |
@@ -53,6 +142,6 @@ jobs:
           git config --global user.email 'action@github.com'
           
           # Stage, commit and push changes
-          git add E2NovaCheckIn.sgmodule
-          git commit -m "Update cron schedule" || echo "No changes to commit"
+          git add E2NovaCheckIn.sgmodule .github/workflows/update_cron.yml .last_morning_minute
+          git commit -m "Update cron schedules for E2NovaCheckIn and workflow" || echo "No changes to commit"
           git push || echo "Failed to push changes"
