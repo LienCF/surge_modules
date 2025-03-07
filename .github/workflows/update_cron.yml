@@ -127,9 +127,19 @@ jobs:
             UTC_TARGET_HOUR=$(( (TARGET_HOUR - 8 + 24) % 24 ))
           fi
           
-          # 更新模組排程
-          echo "Updating module schedule to run at $TARGET_HOUR:$RANDOM_MINUTE (Taipei time)"
-          sed -i "s/cronexp=\"[0-9]* \*/cronexp=\"$RANDOM_MINUTE */" E2NovaCheckIn.sgmodule
+          # 更新模組排程 (只更新分鐘)
+          echo "Updating module schedule to run at minute=$RANDOM_MINUTE (Taipei time)"
+          # 檢查模組檔案中 cronexp 的格式
+          grep -n "cronexp=" E2NovaCheckIn.sgmodule || echo "No cronexp pattern found"
+          
+          # 更新模組排程，只替換分鐘部分，保留小時為 *
+          sed -i "s/cronexp=\"[0-9]* /cronexp=\"$RANDOM_MINUTE /" E2NovaCheckIn.sgmodule
+          
+          # 檢查更新後的格式
+          echo "After update:"
+          grep -n "cronexp=" E2NovaCheckIn.sgmodule
+          
+          echo "Updated module schedule with minute=$RANDOM_MINUTE"
           
           # 計算 workflow 執行時間 (模組執行後 5 分鐘)
           WORKFLOW_MINUTE=$(( (RANDOM_MINUTE + 5) % 60 ))
