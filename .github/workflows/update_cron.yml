@@ -154,7 +154,9 @@ jobs:
           # 更新 workflow 排程
           NEW_CRON="$WORKFLOW_MINUTE $WORKFLOW_HOUR * * *"
           echo "Updating workflow schedule to: $NEW_CRON (UTC time)"
-          sed -i "s/- cron: '35 23 * * *']*'/- cron: '$NEW_CRON'/" .github/workflows/update_cron.yml
+          
+          # 修正 sed 命令，使用正確的模式匹配 workflow 檔案中的 cron 設定
+          sed -i "s/- cron: '[0-9]* [0-9]* \* \* \*'/- cron: '$NEW_CRON'/" .github/workflows/update_cron.yml
           
           # 顯示將要提交的檔案
           echo "--- Files to be committed ---"
