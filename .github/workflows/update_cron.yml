@@ -2,7 +2,7 @@ name: Update Cron Schedule
 
 on:
   schedule:
-    - cron: '58 23 * * *' # UTC 23:45 (台北時間 7:45)
+    - cron: '1 10 * * *' # UTC 23:45 (台北時間 7:45)
   workflow_dispatch:  # 啟用手動觸發
 
 jobs:
