@@ -1,0 +1,14 @@
+#!name=Reddit Adblock
+#!desc=Remove promoted posts on Reddit (HTML/JSON). Requires MITM. v20260116
+
+[MITM]
+hostname = %APPEND% *.reddit.com, *.redditmedia.com, www.reddit.com
+
+[URL Rewrite]
+^https?:\/\/alb\.reddit\.com - reject
+^https?:\/\/stats\.redditmedia\.com - reject
+^https?:\/\/advertising\.reddit\.com - reject
+^https?:\/\/events\.reddit\.com - reject
+
+[Script]
+Reddit-Ads-V2 = type=http-response,pattern=^https?:\/\/.*\.reddit\.com\/.*,requires-body=true,timeout=30,script-path=https://raw.githubusercontent.com/LienCF/surge_modules/master/reddit-ads.js
