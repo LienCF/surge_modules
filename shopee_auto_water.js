@@ -56,6 +56,14 @@ const AESEncrypt = {
 
         // XOR with Rcon
         temp = temp ^ (this.RCON[(i / keySize) - 1] << 24);
+      } else if (keySize > 6 && i % keySize === 4) {
+        // AES-256: SubWord only (no RotWord, no Rcon)
+        temp = (
+          (this.SBOX[(temp >>> 24) & 0xff] << 24) |
+          (this.SBOX[(temp >>> 16) & 0xff] << 16) |
+          (this.SBOX[(temp >>> 8) & 0xff] << 8) |
+          this.SBOX[temp & 0xff]
+        );
       }
 
       expandedKeyWords[i] = (expandedKeyWords[i - keySize] ^ temp) >>> 0;
