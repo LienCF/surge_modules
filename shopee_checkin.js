@@ -167,7 +167,9 @@ async function checkin() {
       }
 
       const userId = config.shopeeInfo.token.SPC_U || config.shopeeInfo.userId;
-      const payload = JSON.parse(config.shopeeInfo.checkinPayload);
+      const payload = typeof config.shopeeInfo.checkinPayload === 'string'
+        ? JSON.parse(config.shopeeInfo.checkinPayload)
+        : config.shopeeInfo.checkinPayload;
       payload.s = generateCheckinS(userId);
 
       const request = {
