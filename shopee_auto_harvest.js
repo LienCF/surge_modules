@@ -79,7 +79,7 @@ function generateS(userId) {
   for (let i = 0; i < keyStr.length; i++) keyBytes.push(keyStr.charCodeAt(i));
   const W = aesKeyExpansion(keyBytes);
 
-  const plaintext = [sCounter++, 0, 0, Date.now(), userId, 0].join('-');
+  const plaintext = [sCounter++, 0, 1, Date.now(), userId, 0].join('-');
   const ptBytes = [];
   for (let i = 0; i < plaintext.length; i++) ptBytes.push(plaintext.charCodeAt(i));
 
