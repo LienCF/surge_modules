@@ -190,7 +190,7 @@ async function harvest() {
       const request = {
         url: 'https://games.shopee.tw/farm/api/orchard/crop/harvest',
         headers: config.shopeeHeaders,
-        body: JSON.stringify(body),
+        body: body,
       };
 
       $httpClient.post(request, function (error, response, data) {
