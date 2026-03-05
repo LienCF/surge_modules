@@ -1,5 +1,6 @@
 let showNotification = true;
 let config = null;
+let createCropRequest = null;
 let sCounter = 1;
 
 // ── AES-256-CBC for s parameter ──
@@ -33,7 +34,6 @@ function aesEncryptBlock(block, W) {
   let s = new Uint8Array(16);
   for (let i = 0; i < 16; i++) s[i] = block[i];
 
-  // AddRoundKey(0)
   for (let c = 0; c < 4; c++) {
     const w = W[c];
     s[4*c] ^= (w>>>24)&0xff; s[4*c+1] ^= (w>>>16)&0xff;
@@ -41,14 +41,11 @@ function aesEncryptBlock(block, W) {
   }
 
   for (let r = 1; r <= Nr; r++) {
-    // SubBytes
     for (let i = 0; i < 16; i++) s[i] = AES_SBOX[s[i]];
-    // ShiftRows
     let t;
     t=s[1]; s[1]=s[5]; s[5]=s[9]; s[9]=s[13]; s[13]=t;
     t=s[2]; s[2]=s[10]; s[10]=t; t=s[6]; s[6]=s[14]; s[14]=t;
     t=s[15]; s[15]=s[11]; s[11]=s[7]; s[7]=s[3]; s[3]=t;
-    // MixColumns (skip for last round)
     if (r < Nr) {
       for (let c = 0; c < 4; c++) {
         const i = c*4;
@@ -61,7 +58,6 @@ function aesEncryptBlock(block, W) {
         s[i+3] = a3^tmp^xt(a3^a0);
       }
     }
-    // AddRoundKey
     for (let c = 0; c < 4; c++) {
       const w = W[4*r+c];
       s[4*c] ^= (w>>>24)&0xff; s[4*c+1] ^= (w>>>16)&0xff;
@@ -83,11 +79,9 @@ function generateS(userId) {
   const ptBytes = [];
   for (let i = 0; i < plaintext.length; i++) ptBytes.push(plaintext.charCodeAt(i));
 
-  // PKCS7 padding
   const padLen = 16 - (ptBytes.length % 16);
   for (let i = 0; i < padLen; i++) ptBytes.push(padLen);
 
-  // AES-256-CBC encrypt with zero IV
   const iv = new Uint8Array(16);
   let prev = iv;
   const ciphertext = [];
@@ -98,11 +92,9 @@ function generateS(userId) {
     for (let j = 0; j < 16; j++) ciphertext.push(prev[j]);
   }
 
-  // IV (16 zero bytes) + ciphertext
   const output = new Uint8Array(16 + ciphertext.length);
   for (let i = 0; i < ciphertext.length; i++) output[16+i] = ciphertext[i];
 
-  // Base64 encode
   const B64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
   let b64 = '';
   for (let i = 0; i < output.length; i += 3) {
@@ -115,8 +107,8 @@ function generateS(userId) {
 }
 
 function surgeNotify(subtitle = '', message = '') {
-  $notification.post('🍤 蝦蝦果園自動收成', subtitle, message, { 'url': 'shopeetw://' });
-};
+  $notification.post('🍤 蝦蝦果園自動種植', subtitle, message, { 'url': 'shopeetw://' });
+}
 
 function handleError(error) {
   if (Array.isArray(error)) {
@@ -149,6 +141,15 @@ function cookieToString(cookieObject) {
   return string;
 }
 
+async function delay(seconds) {
+  console.log(`⏰ 等待 ${seconds} 秒...`);
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve();
+    }, seconds * 1000);
+  });
+}
+
 async function preCheck() {
   return new Promise((resolve, reject) => {
     const shopeeInfo = getSaveObject('ShopeeInfo');
@@ -158,96 +159,143 @@ async function preCheck() {
 
     const shopeeFarmInfo = getSaveObject('ShopeeFarmInfo');
     if (isEmptyObject(shopeeFarmInfo)) {
-      return reject(['檢查失敗 ‼️', '沒有蝦蝦果園資料']);
+      return reject(['檢查失敗 ‼️', '找不到蝦蝦果園資料']);
     }
 
     const shopeeHeaders = {
       'Cookie': cookieToString(shopeeInfo.token),
       'Content-Type': 'application/json',
     }
+
+    const autoCropSeedName = $persistentStore.read('ShopeeAutoCropSeedName') || '';
+
+    if (!autoCropSeedName || !autoCropSeedName.length) {
+      return reject(['檢查失敗 ‼️', '沒有指定作物名稱']);
+    }
+
     config = {
       shopeeInfo: shopeeInfo,
       shopeeFarmInfo: shopeeFarmInfo,
       shopeeHeaders: shopeeHeaders,
+      autoCropSeedNames: autoCropSeedName.split(','),
     }
     return resolve();
   });
 }
 
-async function harvest() {
+async function getSeedList() {
   return new Promise((resolve, reject) => {
     try {
-      if (!config.shopeeFarmInfo.currentCrop || config.shopeeFarmInfo.currentCrop.cropId === 0) {
-        showNotification = false;
-        return reject(['收成失敗 ‼️', '目前沒有作物']);
-      }
-
-      const userId = config.shopeeInfo.token.SPC_U || config.shopeeInfo.userId;
-      const body = Object.assign({}, config.shopeeFarmInfo.currentCrop, {
-        s: generateS(userId),
-      });
-
       const request = {
-        url: 'https://games.shopee.tw/farm/api/orchard/crop/harvest',
+        url: `https://games.shopee.tw/farm/api/orchard/crop/meta/get?t=${new Date().getTime()}`,
         headers: config.shopeeHeaders,
-        body: JSON.stringify(body),
       };
-
-      $httpClient.post(request, function (error, response, data) {
+      $httpClient.get(request, function (error, response, data) {
         if (error) {
-          return reject(['收成失敗 ‼️', '連線錯誤']);
-        } else {
+          return reject(['取得種子列表失敗 ‼️', '請重新登入']);
+        }
+        else {
           if (response.status === 200) {
             const obj = JSON.parse(data);
-            if (obj.code === 0) {
-              const cropName = obj.data.crop.meta.name;
-              const ctaUrl = obj.data.reward.rewardItems[0].itemExtraData.ctaUrl;
-              if (ctaUrl !== '') {
-                return resolve(cropName);
-              } else {
-                showNotification = false;
-
-                // 刪除作物資料
-                let shopeeFarmInfo = getSaveObject('ShopeeFarmInfo');
-                shopeeFarmInfo.currentCrop.cropId = 0;
-                const save = $persistentStore.write(JSON.stringify(shopeeFarmInfo, null, 4), 'ShopeeFarmInfo');
-                if (!save) {
-                  console.log('⚠️ 儲存失敗，無法更新作物資料');
+            if (obj.msg === 'success') {
+              const cropMetas = obj.data.cropMetas;
+              let found = false;
+              let haveSeed = true;
+              for (const cropName of config.autoCropSeedNames) {
+                for (const crop of cropMetas) {
+                  // console.log(`🔍 找到「${crop.name}」種子`);
+                  if (crop.name.includes(cropName)) {
+                    if (crop.config.startTime < new Date().getTime() && crop.config.endTime > new Date().getTime()) {
+                      found = true;
+                      if (crop.totalNum <= crop.curNum) {
+                        haveSeed = false;
+                        console.log(`❌「${crop.name}」已經被搶購一空！`);
+                      }
+                      else {
+                        const userId = config.shopeeInfo.token.SPC_U || config.shopeeInfo.userId;
+                        createCropRequest = {
+                          url: `https://games.shopee.tw/farm/api/orchard/crop/create?t=${new Date().getTime()}`,
+                          headers: config.shopeeHeaders,
+                          body: JSON.stringify({
+                            metaId: crop.id,
+                            s: generateS(userId),
+                          }),
+                        }
+                        return resolve(crop.name);
+                      }
+                    }
+                  }
                 }
-
-                return reject(['收成失敗 ‼️', `已經收成過 ${cropName} 了`]);
               }
-            }
-            else if (obj.code === 409004) {
-              showNotification = false;
-              return reject(['收成失敗 ‼️', '作物尚未達到收成階段']);
-            } else if (obj.code === 404000) {
-              return reject(['收成失敗 ‼️', '找不到作物']);
+              if (found === false) {
+                return reject(['取得種子失敗 ‼️', `今天沒有${config.autoCropSeedNames.join('或')}的種子`]);
+              }
+              if (haveSeed === false) {
+                return reject(['取得種子失敗 ‼️', `今天的${config.autoCropSeedNames.join('和')}種子已經被搶購一空！`]);
+              }
             } else {
-              return reject(['收成失敗 ‼️', `錯誤代號：${obj.code}，訊息：${obj.msg}`]);
+              return reject(['取得種子列表失敗 ‼️', `錯誤代號：${obj.code}，訊息：${obj.msg}`]);
             }
           } else {
-            return reject(['收成失敗 ‼️', response.status]);
+            return reject(['取得種子列表失敗 ‼️', response.status]);
           }
         }
       });
     } catch (error) {
-      return reject(['收成失敗 ‼️', error]);
+      return reject(['取得種子列表失敗 ‼️', error]);
+    }
+  });
+}
+
+async function createCrop() {
+  return new Promise((resolve, reject) => {
+    try {
+      $httpClient.post(createCropRequest, function (error, response, data) {
+        if (error) {
+          return reject(['自動種植失敗 ‼️', '連線錯誤']);
+        }
+        else {
+          if (response.status === 200) {
+            const obj = JSON.parse(data);
+            if (obj.msg === 'success') {
+              const cropId = obj.data.crop.id;
+              let shopeeFarmInfo = getSaveObject('ShopeeFarmInfo');
+              shopeeFarmInfo.currentCrop.cropId = cropId;
+              const save = $persistentStore.write(JSON.stringify(shopeeFarmInfo, null, 4), 'ShopeeFarmInfo');
+              if (!save) {
+                return reject(['保存失敗 ‼️', '無法儲存作物資料']);
+              }
+              return resolve();
+            } else if (obj.code === 409003) {
+              return reject(['自動種植失敗 ‼️', `目前有正在種的作物「${obj.data.crop.meta.name}」`]);
+            } else if (obj.code === 409009) {
+              return reject(['自動種植失敗 ‼️', `尚未開放種植「${obj.data.crop.meta.name}」`]);
+            } else {
+              return reject(['自動種植失敗 ‼️', `錯誤代號：${obj.code}，訊息：${obj.msg}`]);
+            }
+          } else {
+            return reject(['自動種植失敗 ‼️', response.status]);
+          }
+        }
+      });
+    } catch (error) {
+      return reject(['自動種植失敗 ‼️', error]);
     }
   });
 }
 
 (async () => {
-  console.log('ℹ️ 蝦蝦果園自動收成 v20230210.1');
+  console.log('ℹ️ 蝦蝦果園自動種植 v20230206.2');
   try {
     await preCheck();
     console.log('✅ 檢查成功');
-    const cropName = await harvest();
-    console.log('✅ 收成成功');
-    console.log(`ℹ️ 獲得 ${cropName}`);
+    await delay(0.5);
+    const cropName = await getSeedList();
+    console.log('✅ 取得種子成功');
+    await createCrop();
     surgeNotify(
-      '收成成功 ✅',
-      `獲得 ${cropName} 🌳`
+      '自動種植成功 🌱',
+      `正在種植「${cropName}」`
     );
   } catch (error) {
     handleError(error);
