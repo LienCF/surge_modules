@@ -243,51 +243,20 @@ const AESEncrypt = {
   }
 };
 
-/**
- * ArrayBuffer轉Base64
- */
-function arrayBufferToBase64(buffer) {
-  let binary = '';
-  const bytes = new Uint8Array(buffer);
-  for (let i = 0; i < bytes.byteLength; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  return btoa(binary);
-}
-
-// Main encode function
+// Main encode function - AES-256-CBC with PKCS7, key & IV from Shopee encryptWater
 function encodeText(encode_text) {
-  // Key and IV for AES-CBC encryption
-  const key = new Uint8Array([
-    0x2f, 0x2f, 0x2f, 0x76, 0x39, 0x2f, 0x2f, 0x72,
-    0x2f, 0x33, 0x76, 0x31, 0x33, 0x5a, 0x52, 0x33
-  ]);
+  const AES_KEY = "f=1=9w3r/u//f+//Rawym8a5Fwj4gZWT"; // 32 chars = 256-bit
+  const key = AESEncrypt.stringToBytes(AES_KEY);
+  const iv = AESEncrypt.stringToBytes(AES_KEY.slice(0, 16)); // IV = key 前 16 字元
 
-  // 使用與原始程式相同的 IV
-  const iv = new Uint8Array([
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-  ]);
-
-  // Convert input string to UTF-8 bytes
   const textBytes = AESEncrypt.stringToUTF8Bytes(encode_text);
-
-  // Encrypt using AES-CBC
   const encrypted = AESEncrypt.encryptCBC(textBytes, key, iv);
 
-  // 創建帶 IV 標頭的結果
-  const resultWithHeader = new Uint8Array(encrypted.length + 16);
-  resultWithHeader.set(iv, 0);
-  resultWithHeader.set(encrypted, 16);
-
-
-  // Base64 編碼完整結果
-  return arrayBufferToBase64(resultWithHeader);
+  return AESEncrypt.base64Encode(encrypted);
 }
 
 let showNotification = true;
 let config = null;
-let counter = 1; // 初始化為 1，避免每次從 0 開始
 
 function surgeNotify(subtitle = '', message = '') {
   $notification.post('🍤 蝦蝦果園自動澆水', subtitle, message, { 'url': 'shopeetw://' });
@@ -375,28 +344,14 @@ async function deleteOldData() {
   });
 }
 
-function updateSToken(crop) {
-  const deviceId = config.shopeeInfo.token.SPC_U; //   .deviceId; // h.n (58639)
-  const valueY = Date.now().toString().slice(-4); // y (inline calc)
-  const valueW = Math.random().toString(36).substring(2, 8); // w (inline calc)
-  const timestamp = Date.now();     // T (Date.now())
-  const emulatorFlag = 0;        // g - Rename flag variable      
-  counter = 1;
-
-  const reportString = [
-    counter++, // k++
-    valueY,
-    valueW,
-    timestamp,
-    deviceId,
-    emulatorFlag
-  ].join('-'); // "-"
-
-  console.log(reportString);
-  const result = encodeText(reportString);
-  console.log(`${result}`);
-
-  // 直接返回加密後的字符串
+// 產生 iframe_s: AES-CBC("{nowTimestamp}-{userId}", key)
+function generateIframeS() {
+  const userId = config.shopeeInfo.token.SPC_U;
+  const nowTimestamp = Date.now();
+  const plaintext = `${nowTimestamp}-${userId}`;
+  console.log(`plaintext: ${plaintext}`);
+  const result = encodeText(plaintext);
+  console.log(`iframe_s: ${result}`);
   return result;
 }
 
@@ -408,16 +363,29 @@ async function water() {
         return reject(['澆水失敗 ‼️', '目前沒有作物']);
       }
 
-      // 獲取加密後的 token 字符串
-      const sToken = updateSToken(config.shopeeFarmInfo.currentCrop);
+      const iframeS = generateIframeS();
 
-      // 更新 currentCrop 的 s 屬性
-      config.shopeeFarmInfo.currentCrop.s = sToken;
+      const body = {
+        cropId: config.shopeeFarmInfo.currentCrop.cropId,
+        resourceId: config.shopeeFarmInfo.currentCrop.resourceId,
+        iframe_s: iframeS,
+      };
 
       const waterRequest = {
         url: 'https://games.shopee.tw/farm/api/orchard/crop/water',
-        headers: config.shopeeHeaders,
-        body: JSON.stringify(config.shopeeFarmInfo.currentCrop),
+        headers: {
+          ...config.shopeeHeaders,
+          'game-entrance': 'iframe_games_page',
+          'game-operation-source': 'fruit_iframe',
+          'game-iframe-type': 'not_mature',
+          'fruit-version-type': 'h5',
+          'fruit-app-version': config.shopeeInfo.token.shopee_app_version || '36837',
+          'games-app-version': config.shopeeInfo.token.shopee_app_version || '36837',
+          'games-biz-version': '9.7.1',
+          'games-runtime': 'EgretH5',
+          'games-rn-bundle-version': '',
+        },
+        body: JSON.stringify(body),
       };
 
       $httpClient.post(waterRequest, function (error, response, data) {
