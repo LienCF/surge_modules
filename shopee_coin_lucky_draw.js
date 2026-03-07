@@ -43,9 +43,6 @@ async function preCheck() {
     if (isEmptyObject(shopeeInfo)) {
       return reject(['檢查失敗 ‼️', '沒有新版 token']);
     }
-    if (!shopeeInfo.xDfp) {
-      return reject(['檢查失敗 ‼️', '沒有 X-DFP，請先在 app 內開啟蝦幣寶箱頁面一次']);
-    }
     config = {
       shopeeInfo: shopeeInfo,
       shopeeHeaders: {
@@ -94,6 +91,8 @@ async function getActivity() {
 
 function getIdGameHeaders() {
   const shopeeInfo = config.shopeeInfo;
+  console.log(`ℹ️ token keys: ${Object.keys(shopeeInfo.token).join(', ')}`);
+  console.log(`ℹ️ shopeeInfo keys: ${Object.keys(shopeeInfo).join(', ')}`);
   return {
     'Cookie': cookieToString(shopeeInfo.token),
     'Content-Type': 'application/json',
