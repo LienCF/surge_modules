@@ -66,9 +66,11 @@ async function preCheck() {
 async function getBrandList() {
   return new Promise((resolve, reject) => {
     try {
+      const getHeaders = { ...config.shopeeHeaders };
+      delete getHeaders['Content-Type'];
       const request = {
         url: 'https://games.shopee.tw/gameplatform/api/v3/shop/ads/scenario/1001/shop/list?limit=10&offset=0',
-        headers: config.shopeeHeaders,
+        headers: getHeaders,
       };
 
       $httpClient.get(request, function (error, response, data) {
