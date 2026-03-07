@@ -110,9 +110,11 @@ function getIdGameHeaders() {
 async function coinCheckChance() {
   return new Promise((resolve, reject) => {
     try {
+      const headers = getIdGameHeaders();
+      delete headers['Content-Type'];
       const request = {
         url: `https://idgame.shopee.tw/api/luckydraw/nold/v1/events/${activityId}/chance?source=iframe`,
-        headers: getIdGameHeaders(),
+        headers: headers,
       };
       $httpClient.get(request, function (error, response, data) {
         if (error) {
