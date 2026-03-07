@@ -57,6 +57,10 @@ async function preCheck() {
     const shopeeHeaders = {
       'Cookie': fullCookie,
       'Content-Type': 'application/json',
+      'User-Agent': 'iOS app iPhone Shopee appver=36931 language=zh-Hant app_type=1 platform=native_ios os_ver=26.3.0 Cronet/102.0.5005.61',
+      'Referer': 'https://games.shopee.tw/',
+      'x-api-source': 'rn',
+      'x-shopee-client-timezone': 'Asia/Taipei',
     }
     config = {
       shopeeInfo: shopeeInfo,
