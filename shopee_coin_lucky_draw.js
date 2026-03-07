@@ -91,8 +91,6 @@ async function getActivity() {
 
 function getIdGameHeaders() {
   const shopeeInfo = config.shopeeInfo;
-  console.log(`ℹ️ token keys: ${Object.keys(shopeeInfo.token).join(', ')}`);
-  console.log(`ℹ️ shopeeInfo keys: ${Object.keys(shopeeInfo).join(', ')}`);
   return {
     'Cookie': cookieToString(shopeeInfo.token),
     'Content-Type': 'application/json',
