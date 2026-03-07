@@ -379,23 +379,10 @@ async function water() {
         iframe_s: iframeS,
       };
 
-      const appVersion = config.shopeeInfo.xAppVersionName || '36931';
+      const savedHeaders = config.shopeeFarmInfo.waterHeaders;
       const waterRequest = {
         url: 'https://games.shopee.tw/farm/api/orchard/crop/water',
-        headers: {
-          ...config.shopeeHeaders,
-          'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 26_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Beeshop locale=zh-Hant version=' + appVersion + ' appver=' + appVersion + ' Shopee language=zh-Hant app_type=1 platform=web_ios os_ver=26.3.0',
-          'Referer': 'https://games.shopee.tw/farm/mini-farm.html?iframe_source=micro-site',
-          'Origin': 'https://games.shopee.tw',
-          'game-entrance': 'iframe_games_page',
-          'game-operation-source': 'fruit_iframe',
-          'game-iframe-type': 'not_mature',
-          'fruit-version-type': 'h5',
-          'fruit-app-version': appVersion,
-          'games-app-version': appVersion,
-          'games-biz-version': '9.7.1',
-          'games-runtime': 'EgretH5',
-        },
+        headers: savedHeaders ? { ...savedHeaders } : config.shopeeHeaders,
         body: JSON.stringify(body),
       };
 
