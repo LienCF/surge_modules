@@ -77,11 +77,14 @@ async function getBrandList() {
         if (error) {
           return reject(['取得品牌商店列表失敗 ‼️', '連線錯誤']);
         }
+        console.log(`ℹ️ getBrandList 回應狀態: ${response.status}`);
         if (response.status === 200) {
           const obj = JSON.parse(data);
+          console.log(`ℹ️ getBrandList 回應 code: ${obj.code}, 商店數: ${obj.data && obj.data.shops ? obj.data.shops.length : 'N/A'}`);
           if (obj.code === 0) {
             let brandStores = [];
             for (const entry of obj.data.shops) {
+              console.log(`ℹ️ 商店: ${entry.shop.name}, shop_id: ${entry.shop.shop_id}, has_claims: ${entry.has_claims}`);
               if (!entry.has_claims) {
                 brandStores.push({
                   'shop_id': entry.shop.shop_id,
@@ -101,6 +104,7 @@ async function getBrandList() {
             return reject(['取得品牌商店列表失敗 ‼️', `錯誤代號：${obj.code}，訊息：${obj.msg}`]);
           }
         } else {
+          console.log(`ℹ️ getBrandList 回應 body: ${data}`);
           return reject(['取得品牌商店列表失敗 ‼️', response.status]);
         }
       });
@@ -138,14 +142,17 @@ async function claim(store) {
         headers: config.shopeeHeaders,
         body: JSON.stringify(claimPayload),
       };
+      console.log(`ℹ️ claim ${store.brandName}: shop_id=${store.shop_id}, sign=${store.token ? store.token.substring(0, 20) + '...' : 'N/A'}`);
       $httpClient.post(request, function (error, response, data) {
         if (error) {
           return reject([`取得品牌商店 ${store.brandName} 水滴失敗 ‼️`, '連線錯誤']);
         }
+        console.log(`ℹ️ claim ${store.brandName} 回應狀態: ${response.status}`);
         if (response.status === 200) {
           const obj = JSON.parse(data);
+          console.log(`ℹ️ claim ${store.brandName} 回應 code: ${obj.code}, msg: ${obj.msg}`);
           if (obj.code === 0) {
-            console.log(`ℹ️ 取得品牌商店 ${store.brandName} 水滴成功`);
+            console.log(`✅ 取得品牌商店 ${store.brandName} 水滴成功`);
             return resolve();
           } else if (obj.code === 409004) {
             return reject([`取得品牌商店 ${store.brandName} 水滴失敗 ‼️`, '作物狀態錯誤，請檢查是否已收成']);
@@ -156,6 +163,7 @@ async function claim(store) {
             return reject([`取得 ${store.brandName} 水滴失敗 ‼️`, `錯誤代號：${obj.code}，訊息：${obj.msg}`]);
           }
         } else {
+          console.log(`ℹ️ claim ${store.brandName} 回應 body: ${data}`);
           return reject([`取得品牌商店 ${store.brandName} 水滴失敗 ‼️`, response.status]);
         }
       });
