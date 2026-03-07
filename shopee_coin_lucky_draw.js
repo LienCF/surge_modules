@@ -99,14 +99,14 @@ function getIdGameHeaders() {
     'Content-Type': 'application/json',
     'User-Agent': config.shopeeHeaders['User-Agent'],
     'Referer': `https://idgame.shopee.tw/newluckybox/iframe/${activityId}?mode=old_box&source=coins`,
-    'x-game-version': '1011001',
+    'x-game-version': shopeeInfo.xGameVersion || '1011001',
     'x-game-mode': 'nold_lucky_box',
     'x-platform': '2',
     'x-device-platform': 'ios',
     'x-clienttype': '3',
     'x-useragenttype': '1',
-    'x-user-id': String(shopeeInfo.token.userid || shopeeInfo.token.SPC_U || ''),
-    'x-app-version-name': String(shopeeInfo.token.shopee_app_version || ''),
+    'x-user-id': shopeeInfo.xUserId || String(shopeeInfo.token.userid || shopeeInfo.token.SPC_U || ''),
+    'x-app-version-name': shopeeInfo.xAppVersionName || String(shopeeInfo.token.shopee_app_version || ''),
     'x-dfp': shopeeInfo.xDfp,
   };
 }
