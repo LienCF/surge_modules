@@ -43,6 +43,9 @@ async function preCheck() {
     if (isEmptyObject(shopeeInfo)) {
       return reject(['檢查失敗 ‼️', '沒有新版 token']);
     }
+    if (!shopeeInfo.xDfp) {
+      return reject(['檢查失敗 ‼️', '沒有 X-DFP，請先在 app 內開啟蝦幣寶箱頁面一次']);
+    }
     config = {
       shopeeInfo: shopeeInfo,
       shopeeHeaders: {
@@ -104,6 +107,7 @@ function getIdGameHeaders() {
     'x-useragenttype': '1',
     'x-user-id': String(shopeeInfo.token.userid || shopeeInfo.token.SPC_U || ''),
     'x-app-version-name': String(shopeeInfo.token.shopee_app_version || ''),
+    'x-dfp': shopeeInfo.xDfp,
   };
 }
 
@@ -131,8 +135,7 @@ async function coinCheckChance() {
             return reject(['無可用次數 ‼️', '今日已無抽獎機會']);
           }
         } else {
-          console.log(`⚠️ chance 回應: ${response.status}, body: ${data}`);
-          return reject(['查詢抽獎次數失敗 ‼️', response.status]);
+          return reject(['查詢抽獎次數失敗 ‼️', `${response.status}: ${data}`]);
         }
       });
     } catch (error) {
