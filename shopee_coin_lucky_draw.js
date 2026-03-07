@@ -131,6 +131,7 @@ async function coinCheckChance() {
             return reject(['無可用次數 ‼️', '今日已無抽獎機會']);
           }
         } else {
+          console.log(`⚠️ chance 回應: ${response.status}, body: ${data}`);
           return reject(['查詢抽獎次數失敗 ‼️', response.status]);
         }
       });
