@@ -50,8 +50,12 @@ async function preCheck() {
       return reject(['檢查失敗 ‼️', '沒有蝦蝦果園資料']);
     }
 
+    const fullCookie = shopeeFarmInfo.waterHeaders && shopeeFarmInfo.waterHeaders.Cookie
+      ? shopeeFarmInfo.waterHeaders.Cookie
+      : cookieToString(shopeeInfo.token);
+    console.log(`ℹ️ 使用 ${shopeeFarmInfo.waterHeaders && shopeeFarmInfo.waterHeaders.Cookie ? '完整 waterHeaders' : 'shopeeInfo.token'} Cookie`);
     const shopeeHeaders = {
-      'Cookie': cookieToString(shopeeInfo.token),
+      'Cookie': fullCookie,
       'Content-Type': 'application/json',
     }
     config = {
