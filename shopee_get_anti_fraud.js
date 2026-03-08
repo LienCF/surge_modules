@@ -12,9 +12,17 @@ if (afToken) {
     shopeeInfo.csrftoken = csrftoken;
   }
 
+  // 存完整 headers（包含原生層注入的混淆 hex headers）
+  const fullHeaders = {};
+  for (const [key, value] of Object.entries(headers)) {
+    fullHeaders[key] = value;
+  }
+  shopeeInfo.gameplatformHeaders = fullHeaders;
+
   if (changed) {
-    $persistentStore.write(JSON.stringify(shopeeInfo, null, 4), 'ShopeeInfo');
     console.log('ℹ️ 已更新 af-ac-enc-sz-token');
   }
+  $persistentStore.write(JSON.stringify(shopeeInfo, null, 4), 'ShopeeInfo');
+  console.log('ℹ️ 已儲存完整 gameplatform headers');
 }
 $done({});

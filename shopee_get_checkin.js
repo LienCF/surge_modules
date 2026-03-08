@@ -40,6 +40,16 @@ async function getCheckinPayload() {
       if (payload) {
         let shopeeInfo = getSaveObject('ShopeeInfo');
         shopeeInfo.checkinPayload = payload;
+
+        // 存完整 headers（包含原生層注入的 anti-fraud headers）
+        const h = $request.headers;
+        const fullHeaders = {};
+        for (const [key, value] of Object.entries(h)) {
+          fullHeaders[key] = value;
+        }
+        shopeeInfo.checkinHeaders = fullHeaders;
+        console.log('ℹ️ 已儲存完整 checkin headers');
+
         const save = $persistentStore.write(JSON.stringify(shopeeInfo, null, 4), 'ShopeeInfo');
         if (!save) {
           return reject(['保存失敗 ‼️', '無法儲存簽到資料']);

@@ -59,31 +59,36 @@ async function preCheck() {
       return reject(['檢查失敗 ‼️', '沒有蝦蝦果園資料']);
     }
 
-    const fullCookie = shopeeFarmInfo.waterHeaders && shopeeFarmInfo.waterHeaders.Cookie
-      ? shopeeFarmInfo.waterHeaders.Cookie
-      : cookieToString(shopeeInfo.token);
-    console.log(`ℹ️ 使用 ${shopeeFarmInfo.waterHeaders && shopeeFarmInfo.waterHeaders.Cookie ? '完整 waterHeaders' : 'shopeeInfo.token'} Cookie`);
-    const shopeeHeaders = {
-      'Cookie': fullCookie,
-      'Content-Type': 'application/json',
-      'User-Agent': 'iOS app iPhone Shopee appver=36931 language=zh-Hant app_type=1 platform=native_ios os_ver=26.3.0 Cronet/102.0.5005.61',
-      'Referer': 'https://games.shopee.tw/',
-      'x-api-source': 'rn',
-      'x-shopee-client-timezone': 'Asia/Taipei',
-    }
-
-    // 加上 anti-fraud headers（優先從 ShopeeFarmInfo，fallback 到 ShopeeInfo）
-    const afToken = shopeeFarmInfo.afToken || shopeeInfo.afToken || '';
-    if (afToken) {
-      shopeeHeaders['af-ac-enc-sz-token'] = afToken;
-      console.log(`ℹ️ 已加入 af-ac-enc-sz-token (來源: ${shopeeFarmInfo.afToken ? 'FarmInfo' : 'ShopeeInfo'})`);
+    // 優先使用攔截的完整 gameplatform headers
+    const savedHeaders = shopeeInfo.gameplatformHeaders;
+    let shopeeHeaders;
+    if (savedHeaders) {
+      shopeeHeaders = { ...savedHeaders };
+      console.log('ℹ️ 使用攔截的完整 gameplatform headers');
     } else {
-      console.log('⚠️ 沒有 af-ac-enc-sz-token，請先在 app 中手動簽到一次');
-    }
-    const csrftoken = shopeeFarmInfo.csrftoken || shopeeInfo.csrftoken || '';
-    if (csrftoken) {
-      shopeeHeaders['x-csrftoken'] = csrftoken;
-      console.log('ℹ️ 已加入 x-csrftoken');
+      const fullCookie = shopeeFarmInfo.waterHeaders && shopeeFarmInfo.waterHeaders.Cookie
+        ? shopeeFarmInfo.waterHeaders.Cookie
+        : cookieToString(shopeeInfo.token);
+      shopeeHeaders = {
+        'Cookie': fullCookie,
+        'Content-Type': 'application/json',
+        'User-Agent': 'iOS app iPhone Shopee appver=36931 language=zh-Hant app_type=1 platform=native_ios os_ver=26.3.0 Cronet/102.0.5005.61',
+        'Referer': 'https://games.shopee.tw/',
+        'x-api-source': 'rn',
+        'x-shopee-client-timezone': 'Asia/Taipei',
+      };
+
+      const afToken = shopeeFarmInfo.afToken || shopeeInfo.afToken || '';
+      if (afToken) {
+        shopeeHeaders['af-ac-enc-sz-token'] = afToken;
+      } else {
+        console.log('⚠️ 沒有 af-ac-enc-sz-token，請先在 app 中瀏覽一次品牌商店頁面');
+      }
+      const csrftoken = shopeeFarmInfo.csrftoken || shopeeInfo.csrftoken || '';
+      if (csrftoken) {
+        shopeeHeaders['x-csrftoken'] = csrftoken;
+      }
+      console.log('⚠️ 沒有攔截的 headers，使用基本 headers（可能會失敗）');
     }
     config = {
       shopeeInfo: shopeeInfo,
