@@ -1,9 +1,9 @@
 #!name=CMoney 每日自動簽到
-#!desc=每天自動簽到 CMoney 論壇。需先手動簽到一次讓 Surge 擷取 token。 v20260308
+#!desc=每天自動簽到 CMoney 論壇。需先手動開啟 app 一次讓 Surge 擷取 refresh token。 v20260308.2
 
 [Script]
-[CMoney]自動簽到 = type=cron, cronexp="20 0 * * *", script-path=https://raw.githubusercontent.com/LienCF/surge_modules/refs/heads/master/cmoney_checkin.js, wake-system=1, timeout=10
-[CMoney]擷取token = type=http-request, pattern=^https:\/\/forumservice\.cmoney\.tw\/api\/LoginReward\/CheckIn, script-path=https://raw.githubusercontent.com/LienCF/surge_modules/refs/heads/master/cmoney_get_token.js, requires-body=false
+[CMoney]自動簽到 = type=cron, cronexp="20 0 * * *", script-path=https://raw.githubusercontent.com/LienCF/surge_modules/refs/heads/master/cmoney_checkin.js, wake-system=1, timeout=15
+[CMoney]擷取token = type=http-request, pattern=^https:\/\/auth\.cmoney\.tw\/identity\/token, script-path=https://raw.githubusercontent.com/LienCF/surge_modules/refs/heads/master/cmoney_get_token.js, requires-body=true
 
 [MITM]
-hostname = %APPEND% forumservice.cmoney.tw
+hostname = %APPEND% auth.cmoney.tw
