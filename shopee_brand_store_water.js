@@ -30,6 +30,15 @@ function isEmptyObject(obj) {
   return Object.keys(obj).length === 0 && obj.constructor === Object ? true : false;
 }
 
+function generateUUID() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  });
+}
+
+let clientRequestSeq = 0;
+
 function cookieToString(cookieObject) {
   let string = '';
   for (const [key, value] of Object.entries(cookieObject)) {
@@ -63,18 +72,18 @@ async function preCheck() {
       'x-shopee-client-timezone': 'Asia/Taipei',
     }
 
-    // 加上 anti-fraud headers
-    if (shopeeFarmInfo.afToken) {
-      shopeeHeaders['af-ac-enc-sz-token'] = shopeeFarmInfo.afToken;
-      console.log('ℹ️ 已加入 af-ac-enc-sz-token');
+    // 加上 anti-fraud headers（優先從 ShopeeFarmInfo，fallback 到 ShopeeInfo）
+    const afToken = shopeeFarmInfo.afToken || shopeeInfo.afToken || '';
+    if (afToken) {
+      shopeeHeaders['af-ac-enc-sz-token'] = afToken;
+      console.log(`ℹ️ 已加入 af-ac-enc-sz-token (來源: ${shopeeFarmInfo.afToken ? 'FarmInfo' : 'ShopeeInfo'})`);
     } else {
-      console.log('⚠️ 沒有 af-ac-enc-sz-token，請先在 app 中澆水一次');
+      console.log('⚠️ 沒有 af-ac-enc-sz-token，請先在 app 中手動簽到一次');
     }
-    if (shopeeFarmInfo.afHeaders) {
-      for (const [name, value] of Object.entries(shopeeFarmInfo.afHeaders)) {
-        shopeeHeaders[name] = value;
-      }
-      console.log(`ℹ️ 已加入 ${Object.keys(shopeeFarmInfo.afHeaders).length} 個 anti-fraud hex headers`);
+    const csrftoken = shopeeFarmInfo.csrftoken || shopeeInfo.csrftoken || '';
+    if (csrftoken) {
+      shopeeHeaders['x-csrftoken'] = csrftoken;
+      console.log('ℹ️ 已加入 x-csrftoken');
     }
     config = {
       shopeeInfo: shopeeInfo,
@@ -90,6 +99,7 @@ async function getBrandList() {
     try {
       const getHeaders = { ...config.shopeeHeaders };
       delete getHeaders['Content-Type'];
+      getHeaders['client-request-id'] = generateUUID() + '.' + (++clientRequestSeq);
       const request = {
         url: 'https://games.shopee.tw/gameplatform/api/v3/shop/ads/scenario/1001/shop/list?limit=10&offset=0',
         headers: getHeaders,
@@ -159,9 +169,11 @@ async function claim(store) {
         'custom_param': '',
         'request_id': requestId,
       };
+      const claimHeaders = { ...config.shopeeHeaders };
+      claimHeaders['client-request-id'] = generateUUID() + '.' + (++clientRequestSeq);
       const request = {
         url: 'https://games.shopee.tw/gameplatform/api/v3/shop/ads/scenario/1001/task/claim',
-        headers: config.shopeeHeaders,
+        headers: claimHeaders,
         body: JSON.stringify(claimPayload),
       };
       console.log(`ℹ️ claim ${store.brandName}: shop_id=${store.shop_id}, sign=${store.token ? store.token.substring(0, 20) + '...' : 'N/A'}`);

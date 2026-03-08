@@ -56,26 +56,6 @@ async function getCropData() {
           'games-biz-version': h['games-biz-version'] || '',
           'games-runtime': h['games-runtime'] || '',
         };
-        // 擷取 anti-fraud headers
-        const afToken = h['af-ac-enc-sz-token'] || h['Af-Ac-Enc-Sz-Token'] || '';
-        if (afToken) {
-          shopeeFarmInfo.afToken = afToken;
-          console.log('ℹ️ 已擷取 af-ac-enc-sz-token');
-        }
-
-        // 擷取 hex-named anti-fraud headers (動態名稱)
-        const hexHeaderPattern = /^[0-9a-f]{8,}$/i;
-        const afHeaders = {};
-        for (const [name, value] of Object.entries(h)) {
-          if (hexHeaderPattern.test(name)) {
-            afHeaders[name] = value;
-          }
-        }
-        if (Object.keys(afHeaders).length > 0) {
-          shopeeFarmInfo.afHeaders = afHeaders;
-          console.log(`ℹ️ 已擷取 ${Object.keys(afHeaders).length} 個 anti-fraud hex headers`);
-        }
-
         console.log('ℹ️ 已擷取澆水 headers');
 
         const save = $persistentStore.write(JSON.stringify(shopeeFarmInfo, null, 4), 'ShopeeFarmInfo');
