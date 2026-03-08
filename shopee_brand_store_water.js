@@ -62,6 +62,20 @@ async function preCheck() {
       'x-api-source': 'rn',
       'x-shopee-client-timezone': 'Asia/Taipei',
     }
+
+    // 加上 anti-fraud headers
+    if (shopeeFarmInfo.afToken) {
+      shopeeHeaders['af-ac-enc-sz-token'] = shopeeFarmInfo.afToken;
+      console.log('ℹ️ 已加入 af-ac-enc-sz-token');
+    } else {
+      console.log('⚠️ 沒有 af-ac-enc-sz-token，請先在 app 中澆水一次');
+    }
+    if (shopeeFarmInfo.afHeaders) {
+      for (const [name, value] of Object.entries(shopeeFarmInfo.afHeaders)) {
+        shopeeHeaders[name] = value;
+      }
+      console.log(`ℹ️ 已加入 ${Object.keys(shopeeFarmInfo.afHeaders).length} 個 anti-fraud hex headers`);
+    }
     config = {
       shopeeInfo: shopeeInfo,
       shopeeFarmInfo: shopeeFarmInfo,
