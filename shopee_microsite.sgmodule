@@ -1,0 +1,9 @@
+#!name=蝦皮微網站寶箱
+#!desc=自動抽微網站寶箱（蝦皮直營寶箱等）。需先手動抽一次讓 Surge 擷取活動資訊。需同時開啟每日自動簽到以獲得 token。 v20260308
+
+[Script]
+[微網站寶箱]自動抽獎 = type=cron, cronexp="18 0 * * *", script-path=https://raw.githubusercontent.com/LienCF/surge_modules/refs/heads/master/shopee_microsite_draw.js, wake-system=1, timeout=30
+[微網站寶箱]擷取活動資訊 = type=http-request, pattern=^https:\/\/idgame\.shopee\.tw\/api\/luckydraw\/nold\/v1\/events\/[^/]+\/draw-prize, script-path=https://raw.githubusercontent.com/LienCF/surge_modules/refs/heads/master/shopee_get_microsite.js, requires-body=false
+
+[MITM]
+hostname = %APPEND% idgame.shopee.tw
