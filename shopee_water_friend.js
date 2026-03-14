@@ -218,7 +218,7 @@
           if (obj.code === 0) {
             return resolve(obj.data);
           } else {
-            return reject('澆水失敗 code=' + obj.code + ', msg=' + obj.msg);
+            return reject({ code: obj.code, msg: obj.msg });
           }
         } catch (e) {
           return reject('澆水 JSON 解析失敗: ' + e);
@@ -259,8 +259,12 @@
           console.log('✅ 已澆水: ' + f.name + ' (id: ' + f.id + ')');
           results.push(f.name);
         } catch (e) {
-          console.log('❌ ' + f.name + ': ' + e);
-          errors.push(f.name + '(' + e + ')');
+          if (e && e.code === 409001) {
+            console.log('ℹ️ 已達澆水上限，停止');
+            break;
+          }
+          console.log('❌ ' + f.name + ': ' + (e && e.msg || e));
+          errors.push(f.name);
         }
         if (waterableFriends.indexOf(f) < waterableFriends.length - 1) {
           await delay(1500);
