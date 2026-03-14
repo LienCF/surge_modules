@@ -1,0 +1,8 @@
+#!name=蝦蝦果園好友澆水
+#!desc=自動幫好友澆水。需先手動澆自己的作物一次以擷取 headers。 v20260316
+
+[Script]
+[蝦蝦果園]好友澆水 = type=cron, cronexp="30 * * * *", script-path=https://raw.githubusercontent.com/LienCF/surge_modules/refs/heads/master/shopee_water_friend.js, wake-system=1, timeout=30
+
+[MITM]
+hostname = %APPEND% games.shopee.tw
