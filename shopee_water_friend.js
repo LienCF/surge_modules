@@ -1,5 +1,5 @@
 (function() {
-  const VERSION = 'v20260316.4';
+  const VERSION = 'v20260316.5';
 
   // sortType → friendType 映射 (從遊戲 JS 逆向取得)
   const FRIEND_TYPE_MAP = {0:6, 1:3, 2:4, 3:7, 4:5};
@@ -253,9 +253,7 @@
       const results = [];
       const errors = [];
 
-      // DEBUG: 只嘗試第一位好友
-      const targetFriends = waterableFriends.slice(0, 1);
-      for (const f of targetFriends) {
+      for (const f of waterableFriends) {
         try {
           await waterFriend(f, deviceId, userId);
           console.log('✅ 已澆水: ' + f.name + ' (id: ' + f.id + ')');
@@ -264,7 +262,7 @@
           console.log('❌ ' + f.name + ': ' + e);
           errors.push(f.name + '(' + e + ')');
         }
-        if (targetFriends.indexOf(f) < targetFriends.length - 1) {
+        if (waterableFriends.indexOf(f) < waterableFriends.length - 1) {
           await delay(1500);
         }
       }
