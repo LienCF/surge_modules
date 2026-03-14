@@ -185,10 +185,16 @@
         shareKey: '',
       };
 
+      const bodyStr = JSON.stringify(body);
+      console.log('🔍 DEBUG waterFriend body: ' + bodyStr);
+      console.log('🔍 DEBUG userId: ' + userId + ', friendId: ' + friend.id + ', timestamp: ' + now);
+      console.log('🔍 DEBUG s plaintext: ' + now + '-' + userId);
+      console.log('🔍 DEBUG encryptFID plaintext: ' + now + '-' + friend.id);
+
       $httpClient.post({
         url: 'https://games.shopee.tw/farm/api/friend/v2/help',
         headers: headers,
-        body: JSON.stringify(body),
+        body: bodyStr,
       }, function(error, response, data) {
         if (error) return reject('澆水連線錯誤: ' + error);
         if (response.status !== 200) return reject('澆水 HTTP ' + response.status);
@@ -229,10 +235,13 @@
 
       const deviceId = getDeviceId();
       const userId = getUserId();
+      console.log('🔍 DEBUG deviceId: ' + deviceId + ', userId: ' + userId);
       const results = [];
       const errors = [];
 
-      for (const f of waterableFriends) {
+      // DEBUG: 只嘗試第一位好友
+      const debugFriends = waterableFriends.slice(0, 1);
+      for (const f of debugFriends) {
         try {
           await waterFriend(f, deviceId, userId);
           console.log('✅ 已澆水: ' + f.name + ' (id: ' + f.id + ')');
@@ -242,7 +251,7 @@
           errors.push(f.name + '(' + e + ')');
         }
         // 每次澆水間隔 1.5 秒
-        if (waterableFriends.indexOf(f) < waterableFriends.length - 1) {
+        if (debugFriends.indexOf(f) < debugFriends.length - 1) {
           await delay(1500);
         }
       }
