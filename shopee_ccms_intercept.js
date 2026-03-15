@@ -7,23 +7,16 @@
   try {
     const obj = JSON.parse(body);
     if (obj.data && obj.data.modules) {
-      // 強制所有可能包含 sap_rules 的 module 回傳完整 config
-      const targets = [
-        'shopee_brizo-ios',       // Brizo = Shopee 安全 SDK
-        'shopee_platform-ios',
-        'shopee_apm-toggle-ios',
-        'shopee_opt-ios',
-        'shopee_network-ios',
-        'shopee_dre-ios',
-        'shopee_apm-ios',
-      ];
+      // 強制所有 module 回傳完整 config
       let modified = false;
       for (const m of obj.data.modules) {
-        if (targets.includes(m.key) && m.version > 0) {
-          console.log('ℹ️ [CCMS] 修改 ' + m.key + ' version: ' + m.version + ' → 0');
+        if (m.version > 0) {
           m.version = 0;
           modified = true;
         }
+      }
+      if (modified) {
+        console.log('ℹ️ [CCMS] 已將所有 ' + obj.data.modules.length + ' 個 module 的 version 設為 0');
       }
       if (modified) {
         const newBody = JSON.stringify(obj);
