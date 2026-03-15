@@ -1,8 +1,8 @@
 #!name=尋找 SAP Rules
-#!desc=攔截所有 shopee.tw 回應，搜尋 network_interceptor_sap_rules 配置
+#!desc=攔截 CCMS 和 shopee.tw 回應，搜尋 network_interceptor_sap_rules 配置
 
 [Script]
-[SAP]搜尋sap_rules = type=http-response, pattern=^https://.*shopee\.(tw|co\.id|com|sg|vn), script-path=https://raw.githubusercontent.com/LienCF/surge_modules/refs/heads/master/shopee_find_sap.js, requires-body=true, max-size=1048576, script-update-interval=0
+[SAP]搜尋sap_rules = type=http-response, pattern=^https://(ccms\.shopee\.io|.*shopee\.tw), script-path=https://raw.githubusercontent.com/LienCF/surge_modules/refs/heads/master/shopee_find_sap.js, requires-body=true, max-size=1048576, script-update-interval=0
 
 [MITM]
-hostname = %APPEND% *.shopee.tw, *.shopee.co.id
+hostname = %APPEND% *.shopee.tw, ccms.shopee.io
