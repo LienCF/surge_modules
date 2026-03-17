@@ -46,9 +46,14 @@ async function preCheck() {
     if (isEmptyObject(micrositeInfo) || !micrositeInfo.activityId) {
       return reject(['檢查失敗 ‼️', '沒有活動資訊，請先手動開啟寶箱一次']);
     }
+    const idGameHeaders = getSaveObject('ShopeeIdGameHeaders');
+    if (!idGameHeaders.xDfp) {
+      return reject(['檢查失敗 ‼️', '沒有 xDfp，請先開啟蝦皮 App 觸發擷取']);
+    }
     config = {
       shopeeInfo: shopeeInfo,
       micrositeInfo: micrositeInfo,
+      idGameHeaders: idGameHeaders,
     };
     return resolve();
   });
@@ -57,20 +62,21 @@ async function preCheck() {
 function getIdGameHeaders() {
   const shopeeInfo = config.shopeeInfo;
   const micrositeInfo = config.micrositeInfo;
+  const idGameHeaders = config.idGameHeaders;
   const headers = {
     'Cookie': cookieToString(shopeeInfo.token),
     'Content-Type': 'application/json',
     'User-Agent': micrositeInfo.userAgent || 'iOS appp iPhone Shopee appver=36931 language=zh-Hant app_type=1 Cronet/102.0.5005.61',
     'Referer': micrositeInfo.referer || `https://idgame.shopee.tw/newluckybox/iframe/${micrositeInfo.activityId}?mode=old_box&source=microsite`,
-    'x-game-version': shopeeInfo.xGameVersion || '1011001',
+    'x-game-version': idGameHeaders.xGameVersion || '1011001',
     'x-game-mode': 'nold_lucky_box',
     'x-platform': '2',
     'x-device-platform': 'ios',
     'x-clienttype': '3',
     'x-useragenttype': '1',
-    'x-user-id': shopeeInfo.xUserId || String(shopeeInfo.token.userid || shopeeInfo.token.SPC_U || ''),
-    'x-app-version-name': shopeeInfo.xAppVersionName || String(shopeeInfo.token.shopee_app_version || ''),
-    'x-dfp': shopeeInfo.xDfp,
+    'x-user-id': idGameHeaders.xUserId || String(shopeeInfo.token.userid || shopeeInfo.token.SPC_U || ''),
+    'x-app-version-name': idGameHeaders.xAppVersionName || String(shopeeInfo.token.shopee_app_version || ''),
+    'x-dfp': idGameHeaders.xDfp,
   };
   // chaplin headers
   if (micrositeInfo.chaplinSign) {

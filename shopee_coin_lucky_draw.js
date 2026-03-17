@@ -43,8 +43,13 @@ async function preCheck() {
     if (isEmptyObject(shopeeInfo)) {
       return reject(['檢查失敗 ‼️', '沒有新版 token']);
     }
+    const idGameHeaders = getSaveObject('ShopeeIdGameHeaders');
+    if (!idGameHeaders.xDfp) {
+      return reject(['檢查失敗 ‼️', '沒有 xDfp，請先開啟蝦皮 App 觸發擷取']);
+    }
     config = {
       shopeeInfo: shopeeInfo,
+      idGameHeaders: idGameHeaders,
       shopeeHeaders: {
         'Cookie': cookieToString(shopeeInfo.token),
         'Content-Type': 'application/json',
@@ -91,20 +96,21 @@ async function getActivity() {
 
 function getIdGameHeaders() {
   const shopeeInfo = config.shopeeInfo;
+  const idGameHeaders = config.idGameHeaders;
   return {
     'Cookie': cookieToString(shopeeInfo.token),
     'Content-Type': 'application/json',
     'User-Agent': config.shopeeHeaders['User-Agent'],
     'Referer': `https://idgame.shopee.tw/newluckybox/iframe/${activityId}?mode=old_box&source=coins`,
-    'x-game-version': shopeeInfo.xGameVersion || '1011001',
+    'x-game-version': idGameHeaders.xGameVersion || '1011001',
     'x-game-mode': 'nold_lucky_box',
     'x-platform': '2',
     'x-device-platform': 'ios',
     'x-clienttype': '3',
     'x-useragenttype': '1',
-    'x-user-id': shopeeInfo.xUserId || String(shopeeInfo.token.userid || shopeeInfo.token.SPC_U || ''),
-    'x-app-version-name': shopeeInfo.xAppVersionName || String(shopeeInfo.token.shopee_app_version || ''),
-    'x-dfp': shopeeInfo.xDfp,
+    'x-user-id': idGameHeaders.xUserId || String(shopeeInfo.token.userid || shopeeInfo.token.SPC_U || ''),
+    'x-app-version-name': idGameHeaders.xAppVersionName || String(shopeeInfo.token.shopee_app_version || ''),
+    'x-dfp': idGameHeaders.xDfp,
   };
 }
 

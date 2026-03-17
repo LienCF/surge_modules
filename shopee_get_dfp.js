@@ -1,6 +1,6 @@
 const headers = $request.headers;
-const string = $persistentStore.read('ShopeeInfo');
-const shopeeInfo = !string || string.length === 0 ? {} : JSON.parse(string);
+const string = $persistentStore.read('ShopeeIdGameHeaders');
+const idGameHeaders = !string || string.length === 0 ? {} : JSON.parse(string);
 let updated = false;
 
 const headerMap = {
@@ -13,7 +13,7 @@ const headerMap = {
 for (const [key, names] of Object.entries(headerMap)) {
   for (const name of names) {
     if (headers[name]) {
-      shopeeInfo[key] = headers[name];
+      idGameHeaders[key] = headers[name];
       updated = true;
       break;
     }
@@ -21,7 +21,7 @@ for (const [key, names] of Object.entries(headerMap)) {
 }
 
 if (updated) {
-  $persistentStore.write(JSON.stringify(shopeeInfo, null, 4), 'ShopeeInfo');
+  $persistentStore.write(JSON.stringify(idGameHeaders, null, 4), 'ShopeeIdGameHeaders');
   console.log('ℹ️ 已擷取 idgame headers');
 }
 $done({});
