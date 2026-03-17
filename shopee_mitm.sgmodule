@@ -1,0 +1,10 @@
+#!name=Shopee Security SDK MitM
+#!desc=攔截 df.infra.shopee.tw 捕獲 seed/key 交換
+#!category=Tool
+
+[MITM]
+hostname = %APPEND% df.infra.shopee.tw
+
+[Script]
+shopee-sec-req = type=http-request, pattern=^https?://df\.infra\.shopee\.tw, max-size=131072, requires-body=true, script-path=shopee_mitm.js
+shopee-sec-resp = type=http-response, pattern=^https?://df\.infra\.shopee\.tw, max-size=131072, requires-body=true, script-path=shopee_mitm.js
