@@ -47,13 +47,18 @@ async function preCheck() {
     if (!idGameHeaders.xDfp) {
       return reject(['檢查失敗 ‼️', '沒有 xDfp，請先開啟蝦皮 App 觸發擷取']);
     }
+    const fullCookie = idGameHeaders.cookie || cookieToString(shopeeInfo.token);
+    const ua = idGameHeaders.userAgent || 'iOS appp iPhone Shopee appver=31109 language=zh-Hant app_type=1 Cronet/102.0.5005.61';
+    console.log(`ℹ️ cookie 來源: ${idGameHeaders.cookie ? 'idgame 原始 cookie' : 'shopeeInfo.token 組裝'}`);
+    console.log(`ℹ️ cookie 長度: ${fullCookie.length}`);
+    console.log(`ℹ️ UA: ${ua.substring(0, 50)}...`);
     config = {
       shopeeInfo: shopeeInfo,
       idGameHeaders: idGameHeaders,
       shopeeHeaders: {
-        'Cookie': cookieToString(shopeeInfo.token),
+        'Cookie': fullCookie,
         'Content-Type': 'application/json',
-        'User-Agent': 'iOS appp iPhone Shopee appver=31109 language=zh-Hant app_type=1 Cronet/102.0.5005.61',
+        'User-Agent': ua,
       },
     }
     return resolve();

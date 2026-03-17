@@ -50,6 +50,8 @@ async function preCheck() {
     if (!idGameHeaders.xDfp) {
       return reject(['檢查失敗 ‼️', '沒有 xDfp，請先開啟蝦皮 App 觸發擷取']);
     }
+    console.log(`ℹ️ cookie 來源: ${idGameHeaders.cookie ? 'idgame 原始 cookie' : 'shopeeInfo.token 組裝'}`);
+    console.log(`ℹ️ cookie 長度: ${(idGameHeaders.cookie || '').length}`);
     config = {
       shopeeInfo: shopeeInfo,
       micrositeInfo: micrositeInfo,
