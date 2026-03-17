@@ -98,9 +98,9 @@ function getIdGameHeaders() {
   const shopeeInfo = config.shopeeInfo;
   const idGameHeaders = config.idGameHeaders;
   return {
-    'Cookie': cookieToString(shopeeInfo.token),
+    'Cookie': idGameHeaders.cookie || cookieToString(shopeeInfo.token),
     'Content-Type': 'application/json',
-    'User-Agent': config.shopeeHeaders['User-Agent'],
+    'User-Agent': idGameHeaders.userAgent || config.shopeeHeaders['User-Agent'],
     'Referer': `https://idgame.shopee.tw/newluckybox/iframe/${activityId}?mode=old_box&source=coins`,
     'x-game-version': idGameHeaders.xGameVersion || '1011001',
     'x-game-mode': 'nold_lucky_box',

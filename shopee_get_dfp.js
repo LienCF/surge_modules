@@ -20,6 +20,20 @@ for (const [key, names] of Object.entries(headerMap)) {
   }
 }
 
+// 擷取 idgame.shopee.tw 的完整 cookie
+const cookie = headers['Cookie'] || headers['cookie'];
+if (cookie) {
+  idGameHeaders.cookie = cookie;
+  updated = true;
+}
+
+// 擷取 User-Agent
+const ua = headers['User-Agent'] || headers['user-agent'];
+if (ua) {
+  idGameHeaders.userAgent = ua;
+  updated = true;
+}
+
 if (updated) {
   $persistentStore.write(JSON.stringify(idGameHeaders, null, 4), 'ShopeeIdGameHeaders');
   console.log('ℹ️ 已擷取 idgame headers');

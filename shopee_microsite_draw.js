@@ -64,9 +64,9 @@ function getIdGameHeaders() {
   const micrositeInfo = config.micrositeInfo;
   const idGameHeaders = config.idGameHeaders;
   const headers = {
-    'Cookie': cookieToString(shopeeInfo.token),
+    'Cookie': idGameHeaders.cookie || cookieToString(shopeeInfo.token),
     'Content-Type': 'application/json',
-    'User-Agent': micrositeInfo.userAgent || 'iOS appp iPhone Shopee appver=36931 language=zh-Hant app_type=1 Cronet/102.0.5005.61',
+    'User-Agent': idGameHeaders.userAgent || micrositeInfo.userAgent || 'iOS appp iPhone Shopee appver=36931 language=zh-Hant app_type=1 Cronet/102.0.5005.61',
     'Referer': micrositeInfo.referer || `https://idgame.shopee.tw/newluckybox/iframe/${micrositeInfo.activityId}?mode=old_box&source=microsite`,
     'x-game-version': idGameHeaders.xGameVersion || '1011001',
     'x-game-mode': 'nold_lucky_box',
