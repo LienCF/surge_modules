@@ -30,16 +30,12 @@ function isEmptyObject(obj) {
 function parseCookie(cookieString) {
   return cookieString
     .split(';')
-    .map(v => v.split('='))
-    .filter((v) => v.length > 1)
+    .filter(v => v.includes('='))
     .reduce((acc, v) => {
-      let value = decodeURIComponent(v[1].trim());
-      for (let index = 2; index < v.length; index++) {
-        if (v[index] === '') {
-          value += '=';
-        }
-      }
-      acc[decodeURIComponent(v[0].trim())] = value;
+      const idx = v.indexOf('=');
+      const key = decodeURIComponent(v.substring(0, idx).trim());
+      const value = v.substring(idx + 1).trim();
+      acc[key] = value;
       return acc;
     }, {});
 }
